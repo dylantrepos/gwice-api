@@ -1,12 +1,22 @@
-import { Application, Request, Response } from "express";
+import { Router } from "express";
+import { checkController } from "../controllers/checkController";
+import { homeController } from "../controllers/homeController";
+import { weatherController } from "../controllers/weatherController";
 
-export const routerApp = (app: Application) => {
+// export const routerApp = (app: Application) => {
 
-  app.get('/', (_: Request, res: Response) => res.send({ 
-    message: 'Hello World!'
-  })); 
+//   app.get('/', (_: Request, res: Response) => res.send({ 
+//     message: 'Hello World!'
+//   })); 
 
-  app.get('/check', (_: Request, res: Response) => res.send({ 
-    message: 'Hello from the back!'
-  })); 
-}
+//   app.get('/check', checkController); 
+// }
+
+const router = Router();
+
+router.get('/', homeController);
+router.get('/check', checkController);
+router.get('/:city/weather', weatherController);
+
+
+export default router;
