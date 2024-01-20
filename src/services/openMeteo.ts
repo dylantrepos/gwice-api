@@ -3,7 +3,7 @@ import { weatherCodes } from '../utils/openMeteoWeatherCodes';
 import { citiesList } from '../utils/citiesList';
 import axios from 'axios';
 import { CityCoordinates, GetOpenMeteoData } from '../types/Weather';
-import { range } from '../utils/utils';
+import { getTimeRange } from '../utils/utils';
 
 const getCityCoordinates = async (city: string): Promise<CityCoordinates | undefined> => {
   try {
@@ -20,23 +20,28 @@ const getCityCoordinates = async (city: string): Promise<CityCoordinates | undef
   }
 }
 
-const defaultWeather = {
-  current: {
-    time: '',
-    temperature2m: 0,
-    relativeHumidity2m: 0,
-    wind_speed_10m: 0,
-    apparentTemperature: 0,
-    isDay: 0,
-    precipitation: 0,
-    weatherText: '',
-    weatherCode: 0,
-  },
-  hourly: [],
-}
+const defaultCurrent = {
+  time: '',
+  temperature2m: 0,
+  relativeHumidity2m: 0,
+  wind_speed_10m: 0,
+  apparentTemperature: 0,
+  isDay: 0,
+  precipitation: 0,
+  weatherText: '',
+  weatherCode: 0,
+};
 	
-export const getOpenMeteoData = async (city: string): Promise<GetOpenMeteoData | undefined> => {
-  const weather: GetOpenMeteoData = defaultWeather;
+export const getOpenMeteoData = async (
+  city: string, 
+  laps: string,
+  range: string
+): Promise<GetOpenMeteoData | undefined> => {
+  const weather: GetOpenMeteoData = {
+    current: defaultCurrent, 
+    hourly: []};
+
+    console.log('range: ', range);
 
   const coordinates = await getCityCoordinates(city);
 
@@ -46,7 +51,7 @@ export const getOpenMeteoData = async (city: string): Promise<GetOpenMeteoData |
         "longitude": coordinates?.longitude,
         "hourly": ["temperature_2m", "weather_code", "is_day"],
         "current": ["temperature_2m", "relative_humidity_2m", "apparent_temperature", "is_day", "precipitation", "weather_code", "wind_speed_10m"],
-        "forecast_hours": 11,
+        "forecast_hours": range,
         "forecast_days": 1,
         "timezone": "Europe/Berlin",
       };
@@ -72,7 +77,7 @@ export const getOpenMeteoData = async (city: string): Promise<GetOpenMeteoData |
           weatherCode: current.variables(5)!.value(),
         },
         hourly: {
-          time: range(Number(hourly.time()), Number(hourly.timeEnd()), hourly.interval()).map(
+          time: getTimeRange(Number(hourly.time()), Number(hourly.timeEnd()), hourly.interval()).map(
             (t) => new Date((t + utcOffsetSeconds) * 1000)
           ),
           temperature2m: hourly.variables(0)!.valuesArray()!,
@@ -94,7 +99,7 @@ export const getOpenMeteoData = async (city: string): Promise<GetOpenMeteoData |
       }
     
       for (let i = 0; i < weatherData.hourly.time.length; i++) {
-        if (i % 2 === 0 && i !== 0) {
+        if (i % +laps === 0 && i !== 0) {
           weather.hourly.push({
             time: weatherData.hourly.time[i].toISOString(),
             temperature2m: Math.round(weatherData.hourly.temperature2m[i]),
@@ -105,6 +110,7 @@ export const getOpenMeteoData = async (city: string): Promise<GetOpenMeteoData |
         }
       }
     }
+
 
   return weather;
 }

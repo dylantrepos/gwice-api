@@ -1,10 +1,33 @@
 import { Request, Response } from "express";
 import { getOpenMeteoData } from "../services/openMeteo";
+import { citiesList } from "../utils/citiesList";
+import { cityDoesNotExist } from "../utils/utils";
 
 export const weatherController = async (req: Request, res: Response) => {
-  const city = req.params.city.toLowerCase();
+  const cityQuery = req.query.city as string;
 
-  const weatherData = await getOpenMeteoData(city);
+  if (!cityQuery) {
+    res.status(400).send({ error: 'City is required.' });
+    return;
+  }
+
+  if (cityDoesNotExist(cityQuery)) {
+    res.status(400).send({
+      error: `${cityQuery} is not a valid city or is not available for now. Check the list of the available cities.`,
+      citiesAvailable: citiesList,
+    });
+    return;
+  }
+
+  const city = cityQuery.toLowerCase() as string;
+  const laps = req.query.laps as string ?? '2';
+  const range = req.query.range as string ?? '24';
+
+  console.log({laps, range});
+
+  const weatherData = await getOpenMeteoData(city, laps, range);
+
+  console.log('weatherData: ', weatherData);
 
   if (weatherData) {
     const { current: currentData, hourly: hourlyData } = weatherData;
@@ -21,7 +44,8 @@ export const weatherController = async (req: Request, res: Response) => {
   
     const hourly = hourlyData.map((data) => {
       const { time, temperature2m, weatherCode, weatherText, isDay } = data;
-      const hour = (new Date(time)).getUTCHours();
+      const date = (new Date(time));
+      const hour = date.getUTCHours();
   
       return {
         hour: hour.toString().padStart(2, '0') + ':00',
