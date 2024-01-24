@@ -7,3 +7,5 @@ export const getTimeRange = (start: number, stop: number, step: number) =>
 export const cityDoesNotExist = (city: string) => {
   return !citiesList.includes(city.toLowerCase());
 }
+
+export const getFormatedDate = (date: Date) => `${date.getUTCDate().toString().padStart(2, '0')}/${(date.getUTCMonth() + 1).toString().padStart(2, '0')}`

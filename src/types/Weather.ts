@@ -4,26 +4,44 @@ export type CityCoordinates = {
 }
 
 export type OpenMeteoDataCurrent = {
-  time: string;
-  temperature2m: number;
-  relativeHumidity2m: number;
-  wind_speed_10m: number;
-  apparentTemperature: number;
+  date: string;
+  temperature: string;
+  relativeHumidity: string;
+  windSpeed: string;
+  apparentTemperature: string;
   isDay: number;
-  precipitation: number;
-  weatherCode: number;
+  precipitation: string;
+  weatherCode: string;
   weatherText: string;
+};
+
+export type OpenMeteoDataDaily = {
+  time: string;
+  date: string;
+  weatherCode: string;
+  temperatureMin: string;
+  temperatureMax: string;
+  precipitation: string;
+  rain: string;
+  windSpeed: string;
 };
 
 export type OpenMeteoDataHourly = {
   time: string;
-  temperature2m: number;
+  date: string;
+  hour: string;
+  temperature: string;
   isDay: number;
-  weatherCode: number;
+  weatherCode: string;
   weatherText: string;
 };
 
-export type GetOpenMeteoData = {
+export type OpenMeteoData = {
   current: OpenMeteoDataCurrent;
-  hourly: OpenMeteoDataHourly[]
+  forecast: {
+    [date: string]: {
+      weather: OpenMeteoDataDaily;
+      hourly: OpenMeteoDataHourly[];
+    };
+  }
 }

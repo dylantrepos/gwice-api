@@ -2,8 +2,28 @@ import { fetchWeatherApi } from 'openmeteo';
 import { weatherCodes } from '../utils/openMeteoWeatherCodes';
 import { citiesList } from '../utils/citiesList';
 import axios from 'axios';
-import { CityCoordinates, GetOpenMeteoData } from '../types/Weather';
-import { getTimeRange } from '../utils/utils';
+import { CityCoordinates, OpenMeteoData } from '../types/Weather';
+import { getFormatedDate, getTimeRange } from '../utils/utils';
+
+const OpenMeteoParams = {
+  "hourly": ["temperature_2m", "weather_code", "is_day"],
+  "current": ["temperature_2m", "relative_humidity_2m", "apparent_temperature", "is_day", "precipitation", "weather_code", "wind_speed_10m"],
+  "forecast_days": 8,
+  "daily": ["weather_code", "temperature_2m_max", "temperature_2m_min", "precipitation_sum", "rain_sum", "wind_speed_10m_max"],
+  "timezone": "auto"
+}
+
+const DefaultCurrent = {
+  date: '',
+  temperature: '',
+  relativeHumidity: '',
+  windSpeed: '',
+  apparentTemperature: '',
+  isDay: 0,
+  precipitation: '',
+  weatherCode: '',
+  weatherText: '',
+};
 
 const getCityCoordinates = async (city: string): Promise<CityCoordinates | undefined> => {
   try {
@@ -20,97 +40,109 @@ const getCityCoordinates = async (city: string): Promise<CityCoordinates | undef
   }
 }
 
-const defaultCurrent = {
-  time: '',
-  temperature2m: 0,
-  relativeHumidity2m: 0,
-  wind_speed_10m: 0,
-  apparentTemperature: 0,
-  isDay: 0,
-  precipitation: 0,
-  weatherText: '',
-  weatherCode: 0,
-};
-	
 export const getOpenMeteoData = async (
-  city: string, 
-  laps: string,
-  range: string
-): Promise<GetOpenMeteoData | undefined> => {
-  const weather: GetOpenMeteoData = {
-    current: defaultCurrent, 
-    hourly: []};
-
-    console.log('range: ', range);
+  city: string
+): Promise<OpenMeteoData | undefined> => {
+  const weather: OpenMeteoData = {
+    current:  DefaultCurrent,
+    forecast: {}
+  };
 
   const coordinates = await getCityCoordinates(city);
 
   if (coordinates) {
-      const params = {
-        "latitude": coordinates?.latitude,
-        "longitude": coordinates?.longitude,
-        "hourly": ["temperature_2m", "weather_code", "is_day"],
-        "current": ["temperature_2m", "relative_humidity_2m", "apparent_temperature", "is_day", "precipitation", "weather_code", "wind_speed_10m"],
-        "forecast_hours": range,
-        "forecast_days": 1,
-        "timezone": "Europe/Berlin",
-      };
-      
-      const url = "https://api.open-meteo.com/v1/forecast";
-      const responses = await fetchWeatherApi(url, params);
-      
-      const response = responses[0];
-      
-      const utcOffsetSeconds = response.utcOffsetSeconds();
-      const hourly = response.hourly()!;
-      const current = response.current()!;
-
-      const weatherData = {
-        current: {
-          time: new Date((Number(current.time()) + utcOffsetSeconds) * 1000),
-          temperature2m: current.variables(0)!.value(),
-          windSpeed10m: current.variables(6)!.value(),
-          relativeHumidity2m: current.variables(1)!.value(),
-          apparentTemperature: current.variables(2)!.value(),
-          isDay: current.variables(3)!.value(),
-          precipitation: current.variables(4)!.value(),
-          weatherCode: current.variables(5)!.value(),
-        },
-        hourly: {
-          time: getTimeRange(Number(hourly.time()), Number(hourly.timeEnd()), hourly.interval()).map(
-            (t) => new Date((t + utcOffsetSeconds) * 1000)
-          ),
-          temperature2m: hourly.variables(0)!.valuesArray()!,
-          weatherCode: hourly.variables(1)!.valuesArray()!,
-          isDay: hourly.variables(2)!.valuesArray()!,
-        },
-      };
-
-      weather.current = {
-        time: weatherData.current.time.toISOString(),
-        temperature2m: Math.round(weatherData.current.temperature2m),
-        wind_speed_10m: Math.round(weatherData.current.windSpeed10m),
-        relativeHumidity2m: Math.round(weatherData.current.relativeHumidity2m),
-        apparentTemperature: Math.round(weatherData.current.apparentTemperature),
-        isDay: Math.round(weatherData.current.isDay),
-        precipitation: Math.round(weatherData.current.precipitation),
-        weatherCode: +weatherData.current.weatherCode,
-        weatherText: weatherCodes[+weatherData.current.weatherCode],
-      }
+    const params = {
+      "latitude": coordinates?.latitude,
+      "longitude": coordinates?.longitude,
+      ...OpenMeteoParams
+    };
     
-      for (let i = 0; i < weatherData.hourly.time.length; i++) {
-        if (i % +laps === 0 && i !== 0) {
-          weather.hourly.push({
-            time: weatherData.hourly.time[i].toISOString(),
-            temperature2m: Math.round(weatherData.hourly.temperature2m[i]),
-            weatherCode: +weatherData.hourly.weatherCode[i], 
-            weatherText: weatherCodes[+weatherData.hourly.weatherCode[i]], 
-            isDay: weatherData.hourly.isDay[i],
-          });
-        }
+    const url = "https://api.open-meteo.com/v1/forecast";
+    const [cityResponse] = await fetchWeatherApi(url, params);
+    
+    const utcOffsetSeconds = cityResponse.utcOffsetSeconds();
+    const hourly = cityResponse.hourly();
+    const current = cityResponse.current();
+    const daily = cityResponse.daily();
+    
+    if (!hourly || !current || !daily) return undefined;
+
+    const timezone = cityResponse.timezone();
+    
+    const currentDate = new Date().toLocaleDateString('fr-FR', { timeZone: timezone! });
+
+    const weatherDailyData = {
+      time: getTimeRange(Number(daily.time()), Number(daily.timeEnd()), daily.interval()).map(
+        (t) => new Date((t + utcOffsetSeconds) * 1000)
+      ),
+      weatherCode: daily.variables(0)!.valuesArray()!,
+      temperature2mMax: daily.variables(1)!.valuesArray()!,
+      temperature2mMin: daily.variables(2)!.valuesArray()!,
+      precipitationSum: daily.variables(3)!.valuesArray()!,
+      rainSum: daily.variables(4)!.valuesArray()!,
+      windSpeedMax: daily.variables(5)!.valuesArray()!,
+    };
+
+    const weatherHourlyData = {
+      time: getTimeRange(Number(hourly.time()), Number(hourly.timeEnd()), hourly.interval()).map(
+        (t) => new Date((t + utcOffsetSeconds) * 1000)
+      ),
+      temperature2m: hourly.variables(0)!.valuesArray()!,
+      weatherCode: hourly.variables(1)!.valuesArray()!,
+      isDay: hourly.variables(2)!.valuesArray()!,
+    };
+
+    weatherDailyData.time.forEach((time, i) => {
+      const date = new Date(time);
+      const formattedDate = getFormatedDate(date);
+
+      weather.forecast[formattedDate] = {
+        weather: {
+          time: date.toISOString(),
+          date: formattedDate,
+          weatherCode: weatherDailyData.weatherCode[i].toString(),
+          temperatureMin: `${Math.round(weatherDailyData.temperature2mMin[i])}°C`,
+          temperatureMax: `${Math.round(weatherDailyData.temperature2mMax[i])}°C`,
+          precipitation: `${Math.round(weatherDailyData.precipitationSum[i])} mm`,
+          windSpeed: `${Math.round(weatherDailyData.windSpeedMax[i])} km/h`,
+          rain: Math.round(weatherDailyData.rainSum[i]).toString(),
+        },
+        hourly: [],
+      };
+    });
+
+    weather.current = {
+      date: currentDate,
+      temperature: `${Math.round(current.variables(0)!.value())}°C`,
+      windSpeed: `${Math.round(current.variables(6)!.value())} km/h`,
+      relativeHumidity: `${Math.round(current.variables(1)!.value())}%`,
+      apparentTemperature: `${Math.round(current.variables(2)!.value())}°C`,
+      isDay: Math.round(current.variables(3)!.value()),
+      precipitation: `${Math.round(current.variables(4)!.value())} mm`,
+      weatherCode: current.variables(5)!.value().toString(),
+      weatherText: weatherCodes[+current.variables(5)!.value()],
+    }
+
+    for (let i = 0; i < weatherHourlyData.time.length; i++) {
+      const date = new Date(weatherHourlyData.time[i]);
+      const formattedDate = getFormatedDate(date);
+
+      if (weather.forecast[formattedDate]) {
+        weather.forecast[formattedDate].hourly.push({
+          time: weatherHourlyData.time[i].toISOString(),
+          date: formattedDate,
+          hour: weatherHourlyData.time[i].toISOString().slice(11, 16),
+          temperature: `${Math.round(weatherHourlyData.temperature2m[i])}°C`,
+          weatherCode: weatherHourlyData.weatherCode[i].toString(), 
+          weatherText: weatherCodes[+weatherHourlyData.weatherCode[i]], 
+          isDay: weatherHourlyData.isDay[i],
+        });
       }
     }
 
+    return weather;
+  }
 
-  return weather;
+  return undefined;
 }
+
