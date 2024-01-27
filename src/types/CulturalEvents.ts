@@ -1,0 +1,1 @@
+export type WhenQuery = 'today' | 'week' | 'weekend' | 'month' | 'default';
