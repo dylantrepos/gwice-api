@@ -1,10 +1,12 @@
 import { cities } from "../utils/citiesList";
 import { displayLoadingBar, getExecutionTimeDuration } from "../utils/utils";
 import { Browser } from "puppeteer";
-import { EventDetails } from '../types/City';
+import { Event, EventDetails } from '../types/City';
 import { extractHref, extractHrefs } from "../utils/extractData";
 import { ObjectId } from "mongodb";
 import { WhenQuery } from "../types/CulturalEvents";
+import { getPrompt } from "../openAi/openAi";
+// import { getPrompt } from "../openAi/openAi";
 
 export const getLinksForEvents = async (cityName: string, when: WhenQuery, browser: Browser) => {
   console.log(`[getLinksForEvents] ⌛ starting... `);
@@ -131,6 +133,99 @@ export const getEventDetails = async (
     
     eventDetailArr.push(eventDetails);
     await page.close();
+
+    const endTime = Date.now();
+    const executionTime = (endTime - startTime) / 1000;
+    console.log(`[getEventDetails][Event] ✅ Done for ${url} ! Execution time: ${getExecutionTimeDuration(executionTime)}`);
+    console.log(``);
+  };
+
+  const endTime = Date.now();
+  const executionTime = (endTime - startTime) / 1000;
+  console.log(`[getEventDetails] ✅ Done ! Execution time: ${getExecutionTimeDuration(executionTime)}`);
+  console.log(``);
+
+  return eventDetailArr;
+}
+
+
+export const getEvents = async (
+  cityName: string,
+  eventsUrl: string[], 
+  browser: Browser,
+): Promise<Event[]> => {
+
+  const startTime = Date.now();
+  const eventDetailArr: Event[] = [];
+  let progress = 0;
+  
+  for(const url of eventsUrl) {
+    console.log(`[getEventDetails][Event] ⌛ starting for ${url}... `);
+    const startTime = Date.now();
+    const page = await browser.newPage();
+
+    const eventDetails: Event = {
+      id: new ObjectId().toString(),
+      title: null,
+      date: {
+        start: null,
+        end: null,
+      },
+      description: null,
+      price: null,
+      image: null,
+      location: {
+        name: null,
+        address: null,
+      },
+      website: null,
+      contact: {
+        email: null,
+        phone: null,
+      },
+      access: null,
+      page: url,
+    };
+
+    await page.goto(url, { waitUntil: 'domcontentloaded' });
+
+    const { eventDetailSelector, imageSelector } = cities[cityName].culturalEvents.selector;
+    const { getEvent, getImage } = cities[cityName].culturalEvents.extractDataMethods;
+
+    // Title
+
+    const content = await getEvent(page, eventDetailSelector);
+    const image = await getImage(page, imageSelector);
+
+    if (content) {
+      // const data = getPrompt({ content: descriptionPage });
+
+      const prompt = await getPrompt({ content });
+
+      // @ts-ignore
+      if (prompt.choices[0].message.content) {
+        const eventObject = JSON.parse(prompt.choices[0].message.content);
+
+        eventDetails.title = eventObject.title ?? null;
+        eventDetails.date = eventObject.date ?? null;
+        eventDetails.description = eventObject.description ?? null;
+        eventDetails.image = image ?? null;
+        eventDetails.location = eventObject.location ?? null;
+        eventDetails.website = eventObject.website ?? null;
+        eventDetails.contact = eventObject.contact ?? null;
+        eventDetails.access = eventObject.access ?? null;
+        eventDetails.price = eventObject.price ?? null;
+
+        // console.log('promptObject', eventObject);
+        console.log('contentObject', eventDetails);
+      }
+    }
+
+
+
+    progress++;
+    
+    eventDetailArr.push(eventDetails);
 
     const endTime = Date.now();
     const executionTime = (endTime - startTime) / 1000;

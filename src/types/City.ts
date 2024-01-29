@@ -17,6 +17,7 @@ export type Cities = {
       webPageEventsListSelector: string;
       selector: {
         eventLinkSelector: string;
+        eventDetailSelector: string;
         nextPageLinkSelector: string;
         titleSelector: string;
         subtitleSelector: string;
@@ -29,6 +30,7 @@ export type Cities = {
       },
       extractDataMethods: {
         getTitle: (page: any, selector: string) => Promise<string | null>;
+        getEvent: (page: any, selector: string) => Promise<string | null>;
         getSubtitle: (page: any, selector: string) => Promise<string | null>;
         getDate: (page: any, selector: string) => Promise<string | null>;
         getDescription: (page: any, selector: string) => Promise<string[] | null>;
@@ -52,4 +54,27 @@ export type EventDetails = {
   hours: (string | null)[] | null;
   link: string | null;
   page: string | null;
+}
+
+export type Event = {
+  id: string;
+  title: string | null;
+  date: {
+    start: string | null;
+    end: string | null;
+  }
+  description: string | null;
+  price: string | null;
+  image: string | null;
+  location: {
+    name: string | null;
+    address: string | null;
+  };
+  website: string | null; 
+  contact?: {
+    email: string | null;
+    phone: string | null;
+  };
+  access?: string | null;
+  page: string | null; 
 }

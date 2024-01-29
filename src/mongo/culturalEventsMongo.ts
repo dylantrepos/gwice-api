@@ -1,7 +1,7 @@
 import { cityDoesNotExist, timeQueries } from "../utils/utils";
 import { MongoClient } from "mongodb";
 import puppeteer from "puppeteer";
-import { getEventDetails, getLinksForEvents } from "../services/culturalEventsService";
+import {  getEvents, getLinksForEvents } from "../services/culturalEventsService";
 import { WhenQuery } from "../types/CulturalEvents";
 
 export const addEventsCulturalToMongo = async (cityName: string, when: WhenQuery = 'default', client: MongoClient) => {
@@ -23,19 +23,20 @@ export const addEventsCulturalToMongo = async (cityName: string, when: WhenQuery
 
   const linksEvent = await getLinksForEvents(cityName, when as WhenQuery, browser);
 
-  const events = await getEventDetails(cityName, linksEvent, browser, when);
+  // const events = await getEventDetails(cityName, linksEvent, browser, when);
+  const events = await getEvents(cityName, linksEvent, browser);
 
   browser.close();
 
   try {
     await collection.updateOne(
       { name: 'lille' }, // filter
-      { $unset: { [`culturalEvents.${when}`]: "" }} // update
+      { $unset: { [`culturalEvents.events`]: "" }} // update
     );
 
     const result = await collection.updateOne(
       { name: 'lille' }, // filter
-      { $set: { [`culturalEvents.${when}`]: {$each: events} } }, // update
+      { $set: { [`culturalEvents.events`]: {$each: events} } }, // update
       { upsert: true } // options
     );
 
@@ -44,4 +45,21 @@ export const addEventsCulturalToMongo = async (cityName: string, when: WhenQuery
   } catch (error) {
     console.log(error);
   }
+  // try {
+  //   await collection.updateOne(
+  //     { name: 'lille' }, // filter
+  //     { $unset: { [`culturalEvents.${when}`]: "" }} // update
+  //   );
+
+  //   const result = await collection.updateOne(
+  //     { name: 'lille' }, // filter
+  //     { $set: { [`culturalEvents.${when}`]: {$each: events} } }, // update
+  //     { upsert: true } // options
+  //   );
+
+  //   console.log(`Successfully inserted item with _id: ${result.matchedCount}`);
+    
+  // } catch (error) {
+  //   console.log(error);
+  // }
 } 

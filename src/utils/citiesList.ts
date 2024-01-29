@@ -1,7 +1,7 @@
 import { Page } from "puppeteer"
 import { Cities } from "../types/City"
 import { extractAdressData, extractDescriptionData, extractHoursData, extractImageSrc } from "./lille/extractCulturalEventsDatas"
-import { extractHref, extractString } from "./extractData"
+import { extractDom, extractHref, extractString } from "./extractData"
 
 export const citiesList = [
   "lille", "quimper"
@@ -27,6 +27,7 @@ export const cities: Cities = {
       webPageEventsListSelector: '.actusMaster',
       selector: {
         eventLinkSelector: '.actusMaster .evenement .voirActus',
+        eventDetailSelector: '.mainContainer .content',
         nextPageLinkSelector: '.actusMaster .pagination .next',
         titleSelector: '.content > h1',
         subtitleSelector: '.chapo p',
@@ -39,6 +40,7 @@ export const cities: Cities = {
       },
       extractDataMethods: {
         getTitle: async (page: Page, selector: string) => extractString(page, selector, '[getEventDetails][Event]'),
+        getEvent: async (page: Page, selector: string) => extractDom(page, selector, '[getEventDetails][Event]'),
         getSubtitle: async (page: Page, selector: string) => extractString(page, selector, '[getEventDetails][Event]'),
         getDate: async (page: Page, selector: string) => extractString(page, selector, '[getEventDetails][Event]'),
         getDescription: async (page: Page, selector: string) => extractDescriptionData(page, selector),

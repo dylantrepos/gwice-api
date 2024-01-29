@@ -14,5 +14,4 @@ router.get('/cities', cityListController);
 router.get('/events/cultural', culturalEventsController);
 
 
-
 export default router;

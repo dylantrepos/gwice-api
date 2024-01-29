@@ -1,19 +1,18 @@
 import { Request, Response } from "express";
 import { citiesList } from "../utils/citiesList";
-import { cityDoesNotExist, timeQueries } from "../utils/utils";
-import { WhenQuery } from "../types/CulturalEvents";
+import { cityDoesNotExist } from "../utils/utils";
 import { client } from "../mongo/connection";
 
 export const culturalEventsController = async (req: Request, res: Response) => {
   const cityQuery = req.query.city;
-  let whenQuery = req.query?.when ?? 'today';
+  // let whenQuery = req.query?.when ?? 'today';
 
-  if (!timeQueries.includes(whenQuery as WhenQuery)) {
-    res.status(400).send({ error: 'When period is not valid.' });
-    return;
-  }
+  // if (!timeQueries.includes(whenQuery as WhenQuery)) {
+  //   res.status(400).send({ error: 'When period is not valid.' });
+  //   return;
+  // }
 
-  if (Array.isArray(whenQuery)) whenQuery = whenQuery[0] as string;
+  // if (Array.isArray(whenQuery)) whenQuery = whenQuery[0] as string;
   
   if (!cityQuery || typeof cityQuery !== 'string') {
     res.status(400).send({ error: 'City is required.' });
@@ -33,9 +32,9 @@ export const culturalEventsController = async (req: Request, res: Response) => {
     const collection = client.db("gwice").collection('lille');
     console.log({ collection });
 
-    const culturalEvents = await collection.findOne({}, { projection: { [`culturalEvents.${whenQuery}`]: 1 } });
+    const culturalEvents = await collection.findOne({}, { projection: { [`culturalEvents.events`]: 1 } });
     
-    res.send({events: culturalEvents?.culturalEvents[whenQuery as string]['$each']});
+    res.send({events: culturalEvents?.culturalEvents['events']['$each']});
   } catch (error) {
     console.error(error);
     res.status(500).send({ error: 'Internal server error' });
