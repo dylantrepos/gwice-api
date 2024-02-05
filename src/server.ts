@@ -18,7 +18,7 @@ app.use(Router);
 const server = http.createServer(app);
 
 const connectMongo = async () => {  
-  await cron();
+  // await cron();
 }
 
 connectMongo();

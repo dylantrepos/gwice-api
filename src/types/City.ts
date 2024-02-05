@@ -1,46 +1,12 @@
 import { CityCoordinates } from "./Weather";
 
-export type Cities = {
-  [cityName: string]: {
-    name: string;
-    country: string;
-    coordinates: CityCoordinates;
-    culturalEvents: {
-      webpages: {
-        default: string;
-        today: string;
-        week: string;
-        weekend: string;
-        month: string;
-      },
-      webPageURLPrefix: string;
-      webPageEventsListSelector: string;
-      selector: {
-        eventLinkSelector: string;
-        eventDetailSelector: string;
-        nextPageLinkSelector: string;
-        titleSelector: string;
-        subtitleSelector: string;
-        dateSelector: string;
-        descriptionSelector: string;
-        imageSelector: string;
-        adressSelector: string;
-        hoursSelector: string;
-        linkSelector: string;
-      },
-      extractDataMethods: {
-        getTitle: (page: any, selector: string) => Promise<string | null>;
-        getEvent: (page: any, selector: string) => Promise<string | null>;
-        getSubtitle: (page: any, selector: string) => Promise<string | null>;
-        getDate: (page: any, selector: string) => Promise<string | null>;
-        getDescription: (page: any, selector: string) => Promise<string[] | null>;
-        getImage: (page: any, selector: string) => Promise<string | null>;
-        getAdress: (page: any, selector: string) => Promise<string[] | null>;
-        getHours: (page: any, selector: string) => Promise<string[] | null>;
-        getLink: (page: any, selector: string) => Promise<string | null>;
-      }
-    }
-  }
+export type City = {  
+  name: string;
+  country: string;
+  coordinates: CityCoordinates;
+  cityEvents: {
+    fetchBaseUrlAllEvents: string;
+  };
 }
 
 export type EventDetails = {

@@ -1,9 +1,8 @@
 import { fetchWeatherApi } from 'openmeteo';
 import { weatherCodes } from '../utils/openMeteoWeatherCodes';
-import { citiesList } from '../utils/citiesList';
 import axios from 'axios';
 import { CityCoordinates, OpenMeteoData } from '../types/Weather';
-import { getFormatedDate, getTimeRange } from '../utils/utils';
+import { checkCityNameExists, getFormatedDate, getTimeRange } from '../utils/utils';
 
 const OpenMeteoParams = {
   "hourly": ["temperature_2m", "weather_code", "is_day"],
@@ -27,7 +26,7 @@ const DefaultCurrent = {
 
 const getCityCoordinates = async (city: string): Promise<CityCoordinates | undefined> => {
   try {
-      if (!citiesList.includes(city)) throw new Error('City not found');
+      if (!checkCityNameExists(city)) throw new Error('City not found');
       const url = `https://geocoding-api.open-meteo.com/v1/search?name=${city}&count=10&language=fr&format=json`
       const response = await axios.get(url);
       const {results} = response.data;

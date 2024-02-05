@@ -1,8 +1,11 @@
 import { cityDoesNotExist, timeQueries } from "../utils/utils";
 import { MongoClient } from "mongodb";
-import puppeteer from "puppeteer";
-import {  getEvents, getLinksForEvents } from "../services/culturalEventsService";
+import { getLinksForEventsInfoLocal } from "../services/cityEventsService";
 import { WhenQuery } from "../types/CulturalEvents";
+
+import puppeteer from 'puppeteer-extra';
+import StealthPlugin from 'puppeteer-extra-plugin-stealth';
+
 
 export const addEventsCulturalToMongo = async (cityName: string, when: WhenQuery = 'default', client: MongoClient) => {
   if (!timeQueries.includes(when)) {
@@ -17,34 +20,61 @@ export const addEventsCulturalToMongo = async (cityName: string, when: WhenQuery
 
   cityName = cityName.toLowerCase() as string;
   
-  const collection = client.db("gwice").collection('lille');
+  // @ts-ignore
+  // const collection = client.db("gwice").collection('lille');
+  puppeteer.use(StealthPlugin());
   
-  const browser = await puppeteer.launch({ headless: 'new' });
+  // const browser = await puppeteer.launch({ headless: false });
 
-  const linksEvent = await getLinksForEvents(cityName, when as WhenQuery, browser);
+  // const events = await getLinksForEventsInfoLocal('lille', 'default', browser);
 
-  // const events = await getEventDetails(cityName, linksEvent, browser, when);
-  const events = await getEvents(cityName, linksEvent, browser);
 
-  browser.close();
 
-  try {
-    await collection.updateOne(
-      { name: 'lille' }, // filter
-      { $unset: { [`culturalEvents.events`]: "" }} // update
-    );
+  // const linksEvent = await getLinksForEvents(cityName, when as WhenQuery, browser);
 
-    const result = await collection.updateOne(
-      { name: 'lille' }, // filter
-      { $set: { [`culturalEvents.events`]: {$each: events} } }, // update
-      { upsert: true } // options
-    );
+  // const events = await getEvents(cityName, linksEvent, browser);
 
-    console.log(`Successfully inserted item with _id: ${result.matchedCount}`);
+  // browser.close();
+
+  // try {
+  //   await collection.updateOne(
+  //     { name: 'lille' }, // filter
+  //     { $unset: { [`culturalEvents.eventsLocal`]: "" }} // update
+  //   );
+
+  //   const result = await collection.updateOne(
+  //     { name: 'lille' }, // filter
+  //     { $set: { [`culturalEvents.eventsLocal`]: {$each: events} } }, // update
+  //     { upsert: true } // options
+  //   );
+
+  //   console.log(`Successfully inserted item with _id: ${result.matchedCount}`);
     
-  } catch (error) {
-    console.log(error);
-  }
+  // } catch (error) {
+  //   console.log(error);
+  // }
+
+  // try {
+  //   await collection.updateOne(
+  //     { name: 'lille' }, // filter
+  //     { $unset: { [`culturalEvents.events`]: "" }} // update
+  //   );
+
+  //   const result = await collection.updateOne(
+  //     { name: 'lille' }, // filter
+  //     { $set: { [`culturalEvents.events`]: {$each: events} } }, // update
+  //     { upsert: true } // options
+  //   );
+
+  //   console.log(`Successfully inserted item with _id: ${result.matchedCount}`);
+    
+  // } catch (error) {
+  //   console.log(error);
+  // }
+
+
+
+
   // try {
   //   await collection.updateOne(
   //     { name: 'lille' }, // filter

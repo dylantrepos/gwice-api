@@ -1,6 +1,5 @@
 import { Request, Response } from "express";
-import { citiesList } from "../utils/citiesList";
-import { cityDoesNotExist } from "../utils/utils";
+import { checkCityNameExists, getCityNameList } from "../utils/utils";
 import { getOpenMeteoData } from "../services/openMeteo";
 
 export const weatherController = async (req: Request, res: Response) => {
@@ -11,10 +10,10 @@ export const weatherController = async (req: Request, res: Response) => {
     return;
   }
 
-  if (cityDoesNotExist(cityQuery)) {
+  if (!checkCityNameExists(cityQuery)) {
     res.status(400).send({
       error: `${cityQuery} is not a valid city or is not available for now. Check the list of the available cities.`,
-      citiesAvailable: citiesList,
+      citiesAvailable: getCityNameList(),
     });
     return;
   }
