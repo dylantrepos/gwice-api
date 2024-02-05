@@ -1,10 +1,9 @@
 import { Request, Response } from "express";
-import { checkCityNameExists, cityDoesNotExist, getCityNameList } from "../utils/utils";
+import { checkCityNameExists, getCityNameList } from "../utils/utils";
 import { client } from "../mongo/connection";
-import { cityList } from "../city/cityList";
-import { getCityEvents } from "../services/cityEventsService";
+import { getCityEventDetails, getCityEventList } from "../services/cityEventsService";
 
-export const cityEventController = async (req: Request, res: Response) => {
+export const cityEventListController = async (req: Request, res: Response) => {
   const cityName = req.query.cityName as string;
   const categoryIdList = (req.query.categoryIdList as string) ?? undefined;
   
@@ -22,14 +21,37 @@ export const cityEventController = async (req: Request, res: Response) => {
   }
 
   try {
-    // await client.connect();
-    // const collection = client.db("gwice").collection('lille');
-    // console.log({ collection });
-    const events = await getCityEvents({ cityName, categoryIdList });
+    const events = await getCityEventList({ cityName, categoryIdList });
     
-    // const culturalEvents = await collection.findOne({}, { projection: { [`culturalEvents.events`]: 1 } });
+    res.send(events);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send({ error: 'Internal server error' });
+  } finally {
+    await client.close();
+  }
+}
 
-    // console.log('events: ', events);
+export const cityEventDetailsController = async (req: Request, res: Response) => {
+  const cityName = req.query.cityName as string;
+  const eventId = (req.query.eventId as string) ?? undefined;
+  
+  if (!cityName || typeof cityName !== 'string') {
+    res.status(400).send({ error: 'City is required.' });
+    return;
+  }
+
+  if (!checkCityNameExists(cityName)) {
+    res.status(400).send({
+      error: `${cityName} is not a valid city or is not available for now. Check the list of the available cities.`,
+      citiesAvailable: getCityNameList(),
+    });
+    return;
+  }
+
+  try {
+    const events = await getCityEventDetails({ cityName, eventId });
+    
     res.send(events);
   } catch (error) {
     console.error(error);

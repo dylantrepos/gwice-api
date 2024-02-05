@@ -5,7 +5,10 @@ export type City = {
   country: string;
   coordinates: CityCoordinates;
   cityEvents: {
-    fetchBaseUrlAllEvents: string;
+    url: {
+      fetchAllEvents: string;
+      fetchEventDetails: string;
+    };
   };
 }
 

@@ -7,26 +7,42 @@ type GetCityEventsProps = {
   categoryIdList: string;
 }
 
-export const getCityEvents = async ({
+export const getCityEventList = async ({
   cityName,
   categoryIdList
 }: GetCityEventsProps): Promise<Event[]> => {
-  const cityData = cityList[cityName];
-  console.log('cityData', cityData.name);
-  console.log('categoryIdList', categoryIdList);
+  const cityData = cityList[cityName.toLowerCase()];
 
-  const categoryIdListParams = categoryIdList?.length > 0 
-  ? { 'categories-metropolitaines[]': categoryIdList.split(',').map(Number) } 
+  const categoryIdListParams = categoryIdList 
+  ? { 'categories-metropolitaines[]': categoryIdList.split(',').filter(Boolean).map(Number) } 
   : {};
 
-  const axiosRequest = await axios.get(cityData.cityEvents.fetchBaseUrlAllEvents, {
+  const axiosRequest = await axios.get(cityData.cityEvents.url.fetchAllEvents, {
     params: {
       ...categoryIdListParams,
     },
   });
 
-  // const { fetchBaseUrl, shortDetailsParams } = cityData.cityEvents;
-  // const categoryId = getCategoryId(category);
-  // const events = await getEventsFromOpenAgenda(fetchBaseUrl, shortDetailsParams, when, categoryId);
-  return axiosRequest.data.events ?? [];
+  return axiosRequest.data ?? [];
+}
+
+
+type GetCityEventDetailsProps = {
+  cityName: string;
+  eventId: string;
+}
+
+export const getCityEventDetails = async ({
+  cityName,
+  eventId
+}: GetCityEventDetailsProps): Promise<Event[]> => {
+  const cityData = cityList[cityName.toLowerCase()];
+
+  const axiosRequest = await axios.get(cityData.cityEvents.url.fetchEventDetails, {
+    params: {
+      uid: eventId,
+    },
+  });
+
+  return axiosRequest.data ?? [];
 }
