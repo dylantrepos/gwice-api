@@ -6,6 +6,7 @@ import { getCityEventDetails, getCityEventList } from "../services/cityEventsSer
 export const cityEventListController = async (req: Request, res: Response) => {
   const cityName = req.query.cityName as string;
   const categoryIdList = (req.query.categoryIdList as string) ?? undefined;
+  const nextEventPageIds = (req.query.nextEventPageIds as string) ?? undefined;
   
   if (!cityName || typeof cityName !== 'string') {
     res.status(400).send({ error: 'City is required.' });
@@ -21,7 +22,7 @@ export const cityEventListController = async (req: Request, res: Response) => {
   }
 
   try {
-    const events = await getCityEventList({ cityName, categoryIdList });
+    const events = await getCityEventList({ cityName, categoryIdList, nextEventPageIds });
     
     res.send(events);
   } catch (error) {
