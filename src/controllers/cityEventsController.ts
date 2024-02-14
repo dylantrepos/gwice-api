@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { checkCityNameExists, getCityNameList } from "../utils/utils";
 import { client } from "../mongo/connection";
-import { getCityEventDetails, getCityEventList } from "../services/cityEventsService";
+import { getCityEventDetails, getCityEventList, getCitySearchEventList } from "../services/cityEventsService";
 
 export const cityEventListController = async (req: Request, res: Response) => {
 
@@ -35,6 +35,42 @@ export const cityEventListController = async (req: Request, res: Response) => {
 
   try {
     const events = await getCityEventList({ cityName, categoryIdList, nextEventPageIds, startDate, endDate});
+    
+    res.send(events);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send({ error: 'Internal server error' });
+  } finally {
+    await client.close();
+  }
+}
+
+export const citySearchEventListController = async (req: Request, res: Response) => {
+
+  const cityName = req.query.cityName as string;
+  const nextEventPageIds = (req.query.nextEventPageIds as string) ?? null;
+  const search = (req.query.search as string) ?? '';
+  
+  if (!cityName || typeof cityName !== 'string') {
+    res.status(400).send({ error: 'City is required.' });
+    return;
+  }
+  
+  if (!search || typeof search !== 'string') {
+    res.status(400).send({ error: 'Search is required.' });
+    return;
+  }
+
+  if (!checkCityNameExists(cityName)) {
+    res.status(400).send({
+      error: `${cityName} is not a valid city or is not available for now. Check the list of the available cities.`,
+      citiesAvailable: getCityNameList(),
+    });
+    return;
+  }
+
+  try {
+    const events = await getCitySearchEventList({ cityName, nextEventPageIds, search});
     
     res.send(events);
   } catch (error) {

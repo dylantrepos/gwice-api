@@ -2,7 +2,7 @@ import { Event } from '../types/City';
 import { cityList } from "../city/cityList";
 import axios from 'axios';
 
-type GetCityEventsProps = {
+type GetCityEventListProps = {
   cityName: string;
   categoryIdList: string;
   nextEventPageIds?: string | null;
@@ -16,7 +16,7 @@ export const getCityEventList = async ({
   nextEventPageIds = null,
   startDate,
   endDate,
-}: GetCityEventsProps): Promise<Event[]> => {
+}: GetCityEventListProps): Promise<Event[]> => {
   const cityData = cityList[cityName.toLowerCase()];
   
   const categoryIdListParams = categoryIdList 
@@ -32,6 +32,47 @@ export const getCityEventList = async ({
       'timings[tz]': 'Europe/Paris',
       'after[]': nextEventPageIds ?? null,
       'sort': 'timings.asc',
+    },
+  });
+
+
+  return axiosRequest.data ?? [];
+}
+
+type GetCitySearchEventListProps = {
+  cityName: string;
+  nextEventPageIds?: string | null;
+  search: string;
+  // categoryIdList: string;
+  // startDate: string;
+  // endDate: string;
+}
+
+export const getCitySearchEventList = async ({
+  cityName,
+  nextEventPageIds = null,
+  search
+  // categoryIdList,
+  // startDate,
+  // endDate,
+}: GetCitySearchEventListProps): Promise<Event[]> => {
+  const cityData = cityList[cityName.toLowerCase()];
+  
+  // const categoryIdListParams = categoryIdList 
+  // ? { 'categories-metropolitaines[]': categoryIdList.split(',').filter(Boolean).map(Number) } 
+  // : {};
+  
+
+  const axiosRequest = await axios.get(cityData.cityEvents.url.fetchAllEvents, {
+    params: {
+      // ...categoryIdListParams,
+      // 'timings[gte]': startDate,
+      // 'timings[lte]': endDate,
+      // 'timings[tz]': 'Europe/Paris',
+      'after[]': nextEventPageIds ?? null,
+      'sort': 'timings.asc',
+      'relative[]': 'upcoming',
+      search
     },
   });
 
