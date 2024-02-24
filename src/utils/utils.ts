@@ -1,5 +1,6 @@
 import { cityList } from "../city/cityList";
 import { WhenQuery } from "../types/CulturalEvents";
+import { PERIODS } from "../types/Date";
 
 // Helper function to form time ranges
 export const getTimeRange = (start: number, stop: number, step: number) =>
@@ -36,8 +37,9 @@ export const displayLoadingBar = (when: WhenQuery, percentage: number, length: n
   console.log(`[getEventDetails][${when}] [${filledBarsString}${emptyBarsString}] ${Math.round((percentage / length) * 100)}% (${percentage}/${length})\n  ⌛ Execution time: ${getExecutionTimeDuration(executionTime)}`);
 }
 
-export const timeQueries: WhenQuery[] = ['today', 'weekend', 'week', 'month', 'default'];
-
+/*
+ * City name
+ */
 export const getCityNameList = (): string[] => {
   return Object.keys(cityList) ?? [];
 };
@@ -45,3 +47,14 @@ export const getCityNameList = (): string[] => {
 export const checkCityNameExists = (cityName: string): boolean => {
   return ((getCityNameList()).includes(cityName.toLowerCase())) ?? false;
 };
+
+/*
+ * Periods
+ */
+export const getPeriodList = (): string[] => {
+  return Object.keys(PERIODS) ?? [];
+}
+
+export const checkPeriodExists = (period: string): boolean => {
+  return period.toUpperCase() in PERIODS;
+}

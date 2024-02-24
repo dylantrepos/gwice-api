@@ -1,16 +1,18 @@
 import { Request, Response } from "express";
-import { checkCityNameExists, getCityNameList } from "../utils/utils";
+import { checkCityNameExists, checkPeriodExists, getCityNameList, getPeriodList } from "../utils/utils";
 import { client } from "../mongo/connection";
 import { getCityEventDetails, getCityEventList, getCitySearchEventList } from "../services/cityEventsService";
+import { Periods } from "../utils/date";
 
 export const cityEventListController = async (req: Request, res: Response) => {
 
   const cityName = req.query.cityName as string;
   const categoryIdList = (req.query.categoryIdList as string) ?? undefined;
   const nextEventPageIds = (req.query.nextEventPageIds as string) ?? null;
-  const startDate = (req.query.startDate as string) ?? null;
-  const endDate = (req.query.endDate as string) ?? null;
   const search = (req.query.search as string) ?? null
+  const period = (req.query.period as string) ?? null;
+  let startDate = (req.query.startDate as string) ?? null;
+  let endDate = (req.query.endDate as string) ?? null;
 
   console.log({startDate, endDate});
   
@@ -27,11 +29,26 @@ export const cityEventListController = async (req: Request, res: Response) => {
     return;
   }
 
+  if (period) {
+    if (!checkPeriodExists(period)) {
+      res.status(400).send({
+        error: `${period} is not a valid period or is not available for now. Check the list of the available periods.`,
+        periodsAvailable: getPeriodList(),
+      });
+      return;
+    } 
+
+    startDate = Periods[period].start.toISOString();
+    endDate = Periods[period].end.toISOString();
+  } 
+
+
   try {
     const events = await getCityEventList({ 
       cityName, 
       categoryIdList, 
       nextEventPageIds, 
+      period,
       startDate, 
       endDate,
       search

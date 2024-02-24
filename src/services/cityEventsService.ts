@@ -1,11 +1,13 @@
 import { Event } from '../types/City';
 import { cityList } from "../city/cityList";
 import axios from 'axios';
+import { Periods } from '../utils/date';
 
 type GetCityEventListProps = {
   cityName: string;
   categoryIdList: string;
   nextEventPageIds?: string | null;
+  period?: keyof typeof Periods;
   startDate: string;
   endDate: string;
   search: string;
@@ -47,7 +49,6 @@ export const getCityEventList = async ({
       'sort': 'timings.asc',
     },
   });
-
 
   return axiosRequest.data ?? [];
 }
