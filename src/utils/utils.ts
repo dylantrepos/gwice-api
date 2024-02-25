@@ -1,6 +1,5 @@
 import { cityList } from "../city/cityList";
 import { WhenQuery } from "../types/CulturalEvents";
-import { PERIODS } from "../types/Date";
 
 // Helper function to form time ranges
 export const getTimeRange = (start: number, stop: number, step: number) =>
@@ -47,14 +46,3 @@ export const getCityNameList = (): string[] => {
 export const checkCityNameExists = (cityName: string): boolean => {
   return ((getCityNameList()).includes(cityName.toLowerCase())) ?? false;
 };
-
-/*
- * Periods
- */
-export const getPeriodList = (): string[] => {
-  return Object.keys(PERIODS) ?? [];
-}
-
-export const checkPeriodExists = (period: string): boolean => {
-  return period.toUpperCase() in PERIODS;
-}
