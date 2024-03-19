@@ -44,6 +44,18 @@ export type Event = {
     email: string | null;
     phone: string | null;
   };
+  timings: {
+    begin: string | null;
+    end: string | null;
+  }[];
   access?: string | null;
   page: string | null; 
+}
+
+export interface EventList {
+  total: number;
+  events: Event[];
+  after: (string | number)[] | null;
+  sort: string;
+  success: boolean;
 }

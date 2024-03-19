@@ -36,8 +36,17 @@ export const cityEventListController = async (req: Request, res: Response) => {
       endDate,
       search
     });
+
+    const eventsUpdatedDates = events.events.map(event => {
+      const { timings } = event;
+      const closestDate = timings.find(timing => new Date(timing.begin!) > new Date(startDate));
+      return {
+        ...event,
+        nextDate: closestDate?.begin,
+      }
+    });
     
-    res.send(events);
+    res.send({...events, events: eventsUpdatedDates});
   } catch (error) {
     console.error(error);
     res.status(500).send({ error: 'Internal server error' });

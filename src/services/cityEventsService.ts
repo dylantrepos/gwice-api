@@ -1,4 +1,4 @@
-import { Event } from '../types/City';
+import { Event, EventList } from '../types/City';
 import { cityList } from "../city/cityList";
 import axios from 'axios';
 
@@ -18,7 +18,7 @@ export const getCityEventList = async ({
   startDate,
   endDate,
   search
-}: GetCityEventListProps): Promise<Event[]> => {
+}: GetCityEventListProps): Promise<EventList> => {
   const cityData = cityList[cityName.toLowerCase()];
   
   const categoryIdListParams = categoryIdList 
