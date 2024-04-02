@@ -3,6 +3,9 @@
 const { Sequelize, DataTypes } = require("sequelize");
 
 const { config } = require("dotenv");
+const seedCityEventCategory = require("./cityEvents/category");
+const seedCityEventState = require("./cityEvents/state");
+const seedCityEventStatus = require("./cityEvents/status");
 
 config();
 
@@ -18,50 +21,29 @@ const sequelize = new Sequelize(process.env.DATABASE_URL, {
   },
 });
 
-const Author = require("../models/author")(sequelize, DataTypes);
-
-const Book = require("../models/book")(sequelize, DataTypes);
+/**
+ * Import all models, needed to erase previous records
+ */
+const Event = require("../models/cityevent")(sequelize, DataTypes);
+const Adress = require("../models/cityeventadress")(sequelize, DataTypes);
+const Category = require("../models/cityeventcategory")(sequelize, DataTypes);
+const State = require("../models/cityeventstate")(sequelize, DataTypes);
+const Status = require("../models/cityeventstatus")(sequelize, DataTypes);
+const Timings = require("../models/cityeventtimings")(sequelize, DataTypes);
 
 const seedDatabase = async () => {
-  const author = await Author.create({
-    name: "J.K. Rowling",
-    bio: "The creator of the Harry Potter series",
-  });
+  /*
+   * Drop all tables
+   */
+  await sequelize.drop();
+  await sequelize.sync();
 
-  await Book.create({
-    title: "Harry Potter and the Philosopher's Stone",
-    authorId: author.id,
-  });
-
-  await Book.create({
-    title: "Harry Potter and the Chamber of Secrets",
-    authorId: author.id,
-  });
-
-  const author2 = await Author.create({
-    name: "J.R.R. Tolkien",
-    bio: "The creator of Middle-earth and author of The Lord of the Rings.",
-  });
-
-  await Book.create({ title: "The Hobbit", authorId: author2.id });
-
-  await Book.create({
-    title: "The Fellowship of the Ring",
-    authorId: author2.id,
-  });
-
-  await Book.create({ title: "The Two Towers", authorId: author2.id });
-
-  await Book.create({ title: "The Return of the King", authorId: author2.id });
-
-  const author3 = await Author.create({
-    name: "George R.R. Martin",
-    bio: "The author of the epic fantasy series A Song of Ice and Fire.",
-  });
-
-  await Book.create({ title: "A Game of Thrones", authorId: author3.id });
-
-  await Book.create({ title: "A Clash of Kings", authorId: author3.id });
+  /**
+   ** Create all tables
+   */
+  await seedCityEventCategory();
+  await seedCityEventState();
+  await seedCityEventStatus();
 
   await sequelize.close();
 };

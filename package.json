@@ -7,7 +7,10 @@
     "start": "nodemon --watch 'src/**' --ext 'ts,json' --ignore 'src/**/*.spec.ts' --exec 'ts-node src/server.ts'",
     "postinstall": "tsc",
     "watch-node": "nodemon dist/server.js",
-    "watch-ts": "tsc -w"
+    "watch-ts": "tsc -w",
+    "seed": "node seeders/seed.js",
+    "migrate": "sequelize db:migrate",
+    "cron": "node cron/cron.js"
   },
   "author": "",
   "license": "ISC",

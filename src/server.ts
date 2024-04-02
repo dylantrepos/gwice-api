@@ -31,36 +31,33 @@ const sequelize = new Sequelize(process.env.DATABASE_URL, {
 });
 
 // Set up the models
-const Author = require("../models/author")(sequelize, DataTypes);
-const Book = require("../models/book")(sequelize, DataTypes);
+const Category = require("../models/cityeventcategory.js")(
+  sequelize,
+  DataTypes
+);
 
-// Create a new Express application
-app.get("/", async (_, res) => {
-  res.send("Hello World! This is a book catalog.");
-});
-
-app.get("/authors", async (_, res) => {
+app.get("/db/city-event-category", async (_, res) => {
   try {
-    const authors = await Author.findAll();
-    res.json(authors);
+    const cityEventCategories = await Category.findAll();
+    res.json(cityEventCategories);
   } catch (error) {
-    console.error("Error fetching authors:", error);
-    res.status(500).send("Error fetching authors");
+    console.error("Error fetching cityEventCategory:", error);
+    res.status(500).send("Error fetching cityEventCategory");
   }
 });
 
-app.get("/books/:author_id", async (req, res) => {
-  const authorId = parseInt(req.params.author_id);
+app.get("/db/city-event-category/:category_name", async (req, res) => {
+  const categoryName = parseInt(req.params.category_name);
   try {
-    const books = await Book.findAll({
+    const cityEventCategory = await Category.findAll({
       where: {
-        authorId: authorId,
+        name: categoryName,
       },
     });
-    res.json(books);
+    res.json(cityEventCategory);
   } catch (error) {
-    console.error("Error fetching books for author:", error);
-    res.status(500).send("Error fetching books for author");
+    console.error("Error fetching categoryId for cityEventCategory:", error);
+    res.status(500).send("Error fetching categoryId for cityEventCategory");
   }
 });
 

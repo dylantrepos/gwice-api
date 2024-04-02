@@ -49,15 +49,11 @@ const CATEGORY = [
 ];
 
 const seedDatabase = async () => {
-  await Promise.all(
-    CATEGORY.map(async (category) => {
-      await Category.create({
-        name: category,
-      });
-    })
-  );
-
-  await sequelize.close();
+  CATEGORY.map(async (category) => {
+    await Category.create({
+      name: category,
+    });
+  });
 };
 
-seedDatabase();
+module.exports = seedDatabase;
