@@ -1,11 +1,11 @@
-const status = [
+const STATUS = [
   { status_code: -1, status: "refused" },
   { status_code: 0, status: "pending moderation" },
   { status_code: 1, status: "ready to publish" },
   { status_code: 2, status: "published" },
 ];
 
-const states = [
+const STATES = [
   { state_code: 1, state: "scheduled" },
   { state_code: 2, state: "rescheduled" },
   { state_code: 3, state: "moved online" },
@@ -14,7 +14,7 @@ const states = [
   { state_code: 6, state: "canceled" },
 ];
 
-const categories = [
+const CATEGORIES = [
   {
     title: "atelier",
     open_agenda_id: 3,
@@ -102,7 +102,7 @@ const categories = [
 ];
 
 module.exports = {
-  status,
-  states,
-  categories,
+  STATUS,
+  STATES,
+  CATEGORIES,
 };

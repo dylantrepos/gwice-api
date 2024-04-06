@@ -3,15 +3,13 @@ const getConnexion = require("../../database/getConnexion");
 const CityEventStatus = require("./CityEventStatus");
 const CityEventState = require("./CityEventState");
 const CityEventAdress = require("./CityEventAdress");
+const CityEventRegistration = require("./CityEventRegistration");
+const CityEventOpenAgendaInfo = require("./CityEventOpenAgendaInfo");
 
 class CityEvent extends Model {}
 
 CityEvent.init(
   {
-    open_agenda_uid: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-    },
     title: {
       type: DataTypes.STRING,
       allowNull: false,
@@ -21,18 +19,14 @@ CityEvent.init(
       allowNull: false,
     },
     long_description: {
-      type: DataTypes.STRING,
+      type: DataTypes.TEXT,
       allowNull: false,
     },
     price: {
       type: DataTypes.STRING,
-      allowNull: false,
+      allowNull: true,
     },
     image_url: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    registration: {
       type: DataTypes.STRING,
       allowNull: false,
     },
@@ -42,19 +36,12 @@ CityEvent.init(
     },
     event_url: {
       type: DataTypes.STRING,
-      allowNull: false,
+      allowNull: true,
     },
-    open_agenda_created_at: {
-      type: DataTypes.DATE,
-      allowNull: false,
-    },
-    open_agenda_updated_at: {
-      type: DataTypes.DATE,
-      allowNull: false,
-    },
-    open_agenda_user_id: {
+    city_event_open_agenda_info_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
+      references: { model: CityEventOpenAgendaInfo },
     },
     city_event_status_id: {
       type: DataTypes.INTEGER,
@@ -70,6 +57,11 @@ CityEvent.init(
       type: DataTypes.INTEGER,
       allowNull: false,
       references: { model: CityEventAdress },
+    },
+    city_event_registration_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: { model: CityEventRegistration },
     },
     // user_id: {
     //   type: DataTypes.INTEGER,

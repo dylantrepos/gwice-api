@@ -4,6 +4,8 @@ const {
   CityEventCategory,
   CityEventAdress,
   CityEventTimings,
+  CityEventRegistration,
+  CityEventOpenAgendaInfo,
   CityEvent,
   CityEventCityEventCategory,
 } = require("../models/cityEventModel");
@@ -14,6 +16,8 @@ const models = [
   CityEventCategory,
   CityEventAdress,
   CityEventTimings,
+  CityEventRegistration,
+  CityEventOpenAgendaInfo,
   CityEvent,
   CityEventCityEventCategory,
 ];

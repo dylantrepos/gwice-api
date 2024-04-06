@@ -1,4 +1,4 @@
-const { status, states, categories } = require("./data/cityEventData");
+const { STATUS, STATES, CATEGORIES } = require("./data/Constant");
 const {
   CityEventState,
   CityEventStatus,
@@ -6,9 +6,9 @@ const {
 } = require("../models/cityEventModel");
 
 const models = [
-  { modelElt: CityEventStatus, data: status },
-  { modelElt: CityEventState, data: states },
-  { modelElt: CityEventCategory, data: categories },
+  { modelElt: CityEventStatus, data: STATUS },
+  { modelElt: CityEventState, data: STATES },
+  { modelElt: CityEventCategory, data: CATEGORIES },
 ];
 
 const seedData = async () => {

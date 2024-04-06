@@ -26,5 +26,3 @@ CityEventCityEventCategory.init(
 );
 
 module.exports = CityEventCityEventCategory;
-
-// mod

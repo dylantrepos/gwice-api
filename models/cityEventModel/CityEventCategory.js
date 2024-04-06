@@ -11,7 +11,7 @@ CityEventCategory.init(
       unicode: true,
     },
     open_agenda_id: {
-      type: DataTypes.STRING,
+      type: DataTypes.INTEGER,
       allowNull: false,
       unicode: true,
     },

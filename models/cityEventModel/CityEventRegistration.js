@@ -1,21 +1,21 @@
 const { DataTypes, Model } = require("sequelize");
 const getConnexion = require("../../database/getConnexion");
 
-class CityEventAdress extends Model {}
+class CityEventRegistration extends Model {}
 
-CityEventAdress.init(
+CityEventRegistration.init(
   {
-    adress: {
+    link: {
       type: DataTypes.STRING,
-      allowNull: false,
+      allowNull: true,
       unicode: true,
     },
-    city: {
+    email: {
       type: DataTypes.STRING,
-      allowNull: false,
+      allowNull: true,
       unicode: true,
     },
-    postal_code: {
+    phone: {
       type: DataTypes.STRING,
       allowNull: true,
       unicode: true,
@@ -23,9 +23,9 @@ CityEventAdress.init(
   },
   {
     sequelize: getConnexion(),
-    tableName: "city_event_adresses",
-    modelName: "CityEventAdress",
+    tableName: "city_event_registrations",
+    modelName: "CityEventRegistration",
   }
 );
 
-module.exports = CityEventAdress;
+module.exports = CityEventRegistration;

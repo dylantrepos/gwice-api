@@ -6,6 +6,8 @@ const CityEventCityEventCategory = require("./CityEventCityEventCategory");
 const CityEventState = require("./CityEventState");
 const CityEventStatus = require("./CityEventStatus");
 const CityEventTimings = require("./CityEventTimings");
+const CityEventRegistration = require("./CityEventRegistration");
+const CityEventOpenAgendaInfo = require("./CityEventOpenAgendaInfo");
 
 CityEvent.belongsToMany(CityEventCategory, {
   as: "city_event_categories",
@@ -25,4 +27,6 @@ module.exports = {
   CityEventState,
   CityEventStatus,
   CityEventTimings,
+  CityEventRegistration,
+  CityEventOpenAgendaInfo,
 };
