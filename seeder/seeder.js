@@ -1,5 +1,3 @@
-const { DataTypes } = require("sequelize");
-const sequelize = require("../database/database");
 const { status, states, categories } = require("./data/cityEventData");
 const {
   CityEventState,
