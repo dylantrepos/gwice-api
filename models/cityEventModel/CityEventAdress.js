@@ -7,12 +7,12 @@ CityEventAdress.init(
   {
     adress: {
       type: DataTypes.STRING,
-      allowNull: false,
+      allowNull: true,
       unicode: true,
     },
     city: {
       type: DataTypes.STRING,
-      allowNull: false,
+      allowNull: true,
       unicode: true,
     },
     postal_code: {

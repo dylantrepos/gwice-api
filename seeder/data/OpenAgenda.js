@@ -9,11 +9,13 @@ const {
   CityEventOpenAgendaInfo,
 } = require("../../models/cityEventModel");
 
+let nbEventAdded = 0;
+
 const initOpenAgendaCityEvents = async () => {
   console.log("\n[Seeder] ⌛ Start seeding OpenAgenda city events ...\n");
   try {
     const URL =
-      "https://api.openagenda.com/v2/agendas/89904399/events?key=b139873be49e4eaf8802204829301bb2&detailed=1&includeLabels=true&size=20&state=2";
+      "https://api.openagenda.com/v2/agendas/89904399/events?key=b139873be49e4eaf8802204829301bb2&detailed=1&includeLabels=true&size=100&state=2";
     const response = await axios.get(URL);
     const events = response.data;
     // const testEvent = events.events[1];
@@ -24,7 +26,7 @@ const initOpenAgendaCityEvents = async () => {
     // await addToDB(testEvent);
 
     console.log(
-      "[Open Agenda] ✅ OpenAgenda city events successfully seeded\n"
+      `[Open Agenda] ✅ ${nbEventAdded} events successfully seeded\n`
     );
   } catch (error) {
     console.log(
@@ -42,9 +44,9 @@ const addToDB = async (testEvent) => {
 
     const [cityEventAddress, created] = await CityEventAddress.findOrCreate({
       where: {
-        adress: testEvent.location.address,
-        city: testEvent.location.city,
-        postal_code: testEvent.location.insee,
+        adress: testEvent.location?.address ?? null,
+        city: testEvent.location?.city ?? null,
+        postal_code: testEvent.location?.insee ?? null,
       },
     });
     const adressId = cityEventAddress.id;
@@ -63,7 +65,6 @@ const addToDB = async (testEvent) => {
     // console.log("statusDbIdTEst success :", testEvent.status.id.toString());
     console.log("statusDbId success :", statusDbId.id);
 
-    console.log("statusDbId success :", testEvent.id);
     const [createRegistration, createdRegistration] =
       await CityEventRegistration.findOrCreate({
         where: {
@@ -109,6 +110,7 @@ const addToDB = async (testEvent) => {
       city_event_category_id: categoryDbId.id,
     });
 
+    nbEventAdded++;
     console.log(
       `[Open Agenda] ✅ Event ${createCityEvent.id} successfully seeded\n`
     );
