@@ -1,5 +1,5 @@
 const { DataTypes, Model } = require("sequelize");
-const getConnexion = require("../getConnexion");
+const getConnexion = require("../../database/getConnexion");
 
 class CityEventState extends Model {}
 

@@ -1,5 +1,5 @@
 const { Model, DataTypes, Deferrable, literal } = require("sequelize");
-const getConnexion = require("../getConnexion");
+const getConnexion = require("../../database/getConnexion");
 const CityEvent = require("./CityEvent");
 const CityEventCategory = require("./CityEventCategory");
 

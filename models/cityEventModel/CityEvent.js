@@ -1,5 +1,5 @@
 const { DataTypes, Model } = require("sequelize");
-const getConnexion = require("../getConnexion");
+const getConnexion = require("../../database/getConnexion");
 const CityEventStatus = require("./CityEventStatus");
 const CityEventState = require("./CityEventState");
 const CityEventAdress = require("./CityEventAdress");
