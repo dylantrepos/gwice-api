@@ -1,19 +1,25 @@
 import { Router } from "express";
 import { checkController } from "../controllers/checkController";
+import {
+  cityEventDetailsController,
+  cityEventListController,
+  citySearchEventListController,
+} from "../controllers/cityEventsController";
+import { cityEventListTestController } from "../controllers/cityEventsTestController";
+import { cityListController } from "../controllers/cityListController";
 import { homeController } from "../controllers/homeController";
 import { weatherController } from "../controllers/weatherController";
-import { cityListController } from "../controllers/cityListController";
-import { cityEventDetailsController, cityEventListController, citySearchEventListController } from "../controllers/cityEventsController";
 
 const router = Router();
 
-router.get('/', homeController);
-router.get('/check', checkController);
-router.get('/weather', weatherController);
-router.get('/cities', cityListController);
-router.get('/events', cityEventListController);
-router.get('/events/search', citySearchEventListController);
-router.get('/event', cityEventDetailsController);
+router.get("/", homeController);
+router.get("/check", checkController);
+router.get("/weather", weatherController);
+router.get("/cities", cityListController);
+router.get("/events", cityEventListController);
+router.get("/events/search", citySearchEventListController);
+router.get("/event", cityEventDetailsController);
 
+router.get("/events-test", cityEventListTestController);
 
 export default router;

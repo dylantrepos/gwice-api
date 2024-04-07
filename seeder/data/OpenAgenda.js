@@ -12,19 +12,50 @@ const {
 } = require("../../models/cityEventModel");
 
 let nbEventAdded = 0;
+let nbEventDone = 0;
+let totalEvent = 0;
 
 const initOpenAgendaCityEvents = async () => {
   console.log("\n[Seeder] ⌛ Start seeding OpenAgenda city events ...\n");
   try {
     const URL =
       "https://api.openagenda.com/v2/agendas/89904399/events?key=b139873be49e4eaf8802204829301bb2&detailed=1&size=100&state=2&relative[]=upcoming";
-    const response = await axios.get(URL);
-    const events = response.data;
-    // const testEvent = events.events[1];
 
-    for (const event of events.events) {
-      await addToDB(event);
-    }
+    const retreiveEvent = async (currUrl = URL) => {
+      const response = await axios.get(currUrl);
+      const events = response.data;
+      totalEvent = events.total;
+
+      for (const event of events.events) {
+        nbEventDone++;
+        await addToDB(event);
+
+        // Calculate the progress as a percentage
+        const progress = Math.floor((nbEventDone / totalEvent) * 100);
+
+        // Clear the current line
+        process.stdout.clearLine();
+        // Move the cursor to the start of the line
+        process.stdout.cursorTo(0);
+        // Write the progress bar to the stdout
+        process.stdout.write(
+          `Current progress: [${"#".repeat(progress / 2)}${" ".repeat(
+            50 - progress / 2
+          )}] ${progress}% (${nbEventDone}/${totalEvent})`
+        );
+      }
+
+      if (events.after && events.after.length > 0) {
+        const afterUrl = `${URL}${events.after
+          .map((e) => `&after[]=${e}`)
+          .join("")}`;
+        console.log(`[Open Agenda] afterUrl : `, afterUrl);
+        await retreiveEvent(afterUrl);
+      }
+    };
+
+    await retreiveEvent();
+
     // await addToDB(testEvent);
 
     console.log(
@@ -52,9 +83,9 @@ const addToDB = async (testEvent) => {
       },
     });
     const adressId = cityEventAddress.id;
-    console.log("adress success", cityEventAddress.id);
+    // console.log("adress success", cityEventAddress.id);
 
-    console.log("category success", testEventCategoryId);
+    // console.log("category success", testEventCategoryId);
     const categoryDbsId = [];
     for (const categoryId of testEventCategoryId) {
       const categoryDbId = await CityEventCategory.findOne({
@@ -62,17 +93,14 @@ const addToDB = async (testEvent) => {
       });
       categoryDbsId.push(categoryDbId.id);
     }
-    // const categoryDbId = await CityEventCategory.findOne({
-    //   where: { open_agenda_id: testEventCategoryId },
-    // });
-    console.log("categoryDbId success", categoryDbsId);
+
+    // console.log("categoryDbId success", categoryDbsId);
 
     const statusDbId = await CityEventStatus.findOne({
       where: { status_code: testEvent.status },
     });
 
-    // console.log("statusDbIdTEst success :", testEvent.status.id.toString());
-    console.log("statusDbId success :", statusDbId.id);
+    // console.log("statusDbId success :", statusDbId.id);
 
     const [createRegistration, createdRegistration] =
       await CityEventRegistration.findOrCreate({
@@ -88,7 +116,7 @@ const addToDB = async (testEvent) => {
             null,
         },
       });
-    console.log("createRegistation", createRegistration.id);
+    // console.log("createRegistation", createRegistration.id);
 
     const createOpenAgenda = await CityEventOpenAgendaInfo.create({
       event_uid: testEvent.uid,
@@ -112,7 +140,7 @@ const addToDB = async (testEvent) => {
       city_event_adress_id: adressId,
       city_event_registration_id: createRegistration.id,
     });
-    console.log("createCityEvent ", createCityEvent.id);
+    // console.log("createCityEvent ", createCityEvent.id);
 
     for (const timing of testEvent.timings) {
       const [createTiming, created] = await CityEventTiming.findOrCreate({

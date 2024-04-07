@@ -6,7 +6,7 @@ class CityEventRegistration extends Model {}
 CityEventRegistration.init(
   {
     link: {
-      type: DataTypes.STRING,
+      type: DataTypes.TEXT,
       allowNull: true,
       unicode: true,
     },
