@@ -1,21 +1,25 @@
-const axios = require("axios");
-const CityEventAddress = require("../../models/cityEventModel/CityEventAdress");
-const CityEventCategory = require("../../models/cityEventModel/CityEventCategory");
-const {
+import axios from "axios";
+
+import {
   CityEvent,
+  CityEventAdress,
+  CityEventCategory,
   CityEventCityEventCategory,
+  CityEventCityEventTiming,
+  CityEventOpenAgendaInfo,
   CityEventRegistration,
   CityEventStatus,
   CityEventTiming,
-  CityEventCityEventTiming,
-  CityEventOpenAgendaInfo,
-} = require("../../models/cityEventModel");
+} from "../../models/cityEventModel/index";
+import { CityEventDetails } from "../../types/CityEvents";
 
 let nbEventAdded = 0;
+let nbEventRejected = 0;
 let nbEventDone = 0;
 let totalEvent = 0;
+let errorEvent: any[] = [];
 
-const initOpenAgendaCityEvents = async () => {
+export const initOpenAgendaCityEvents = async () => {
   console.log("\n[Seeder] ⌛ Start seeding OpenAgenda city events ...\n");
   try {
     const URL =
@@ -27,36 +31,36 @@ const initOpenAgendaCityEvents = async () => {
       totalEvent = events.total;
 
       for (const event of events.events) {
-        nbEventDone++;
-        await addToDB(event);
-
         // Calculate the progress as a percentage
         const progress = Math.floor((nbEventDone / totalEvent) * 100);
 
-        // Clear the current line
-        process.stdout.clearLine();
-        // Move the cursor to the start of the line
-        process.stdout.cursorTo(0);
         // Write the progress bar to the stdout
-        process.stdout.write(
-          `Current progress: [${"#".repeat(progress / 2)}${" ".repeat(
+        console.clear();
+        console.log(
+          `[Open Agenda] ⌛ Progress: [${"#".repeat(progress / 2)}${"…".repeat(
             50 - progress / 2
-          )}] ${progress}% (${nbEventDone}/${totalEvent})`
+          )}] ${progress}%`
         );
+        console.log(`[Open Agenda] Done: ${nbEventDone}/${totalEvent} events`);
+        console.log(`[Open Agenda] ✅ Added: ${nbEventAdded} events`);
+        console.log(`[Open Agenda] 🛑 Rejected: ${nbEventRejected} events`);
+        errorEvent.forEach((e) => {
+          console.log(`[Open Agenda] ❌ Error ${e} \n`);
+        });
+        nbEventDone++;
+        await addToDB(event);
       }
 
       if (events.after && events.after.length > 0) {
         const afterUrl = `${URL}${events.after
-          .map((e) => `&after[]=${e}`)
+          .map((e: string) => `&after[]=${e}`)
           .join("")}`;
-        console.log(`[Open Agenda] afterUrl : `, afterUrl);
+        console.log(`\n[Open Agenda] fetching next pages... (${afterUrl})\n`);
         await retreiveEvent(afterUrl);
       }
     };
 
     await retreiveEvent();
-
-    // await addToDB(testEvent);
 
     console.log(
       `[Open Agenda] ✅ ${nbEventAdded} events successfully seeded\n`
@@ -68,14 +72,28 @@ const initOpenAgendaCityEvents = async () => {
     );
   }
 };
-const addToDB = async (testEvent) => {
-  console.log("\n[Open Agenda] ⌛ Start seeding an OpenAgenda event ...\n");
+const addToDB = async (testEvent: CityEventDetails) => {
+  console.log(`[Open Agenda] ➡ Current event uid: ${testEvent.uid}...`);
   try {
     const testEventCategoryId = testEvent["categories-metropolitaines"];
     // Avoid event with no category
-    if (testEventCategoryId.includes(28)) return;
+    if (testEventCategoryId.includes(28)) {
+      nbEventRejected++;
+      console.log(
+        `[Open Agenda] 🛑 No category for ${testEvent.uid}, skipped...\n`
+      );
+      return;
+    }
 
-    const [cityEventAddress, created] = await CityEventAddress.findOrCreate({
+    if (!testEvent.image?.base) {
+      nbEventRejected++;
+      console.log(
+        `[Open Agenda] 🛑 No image for ${testEvent.uid}, skipped...\n`
+      );
+      return;
+    }
+
+    const [cityEventAddress, created] = await CityEventAdress.findOrCreate({
       where: {
         adress: testEvent.location?.address ?? null,
         city: testEvent.location?.city ?? null,
@@ -91,7 +109,8 @@ const addToDB = async (testEvent) => {
       const categoryDbId = await CityEventCategory.findOne({
         where: { open_agenda_id: categoryId },
       });
-      categoryDbsId.push(categoryDbId.id);
+      if (categoryDbId) categoryDbsId.push(categoryDbId.id);
+      else throw new Error(`Category not found for event ${testEvent.uid}`);
     }
 
     // console.log("categoryDbId success", categoryDbsId);
@@ -99,6 +118,9 @@ const addToDB = async (testEvent) => {
     const statusDbId = await CityEventStatus.findOne({
       where: { status_code: testEvent.status },
     });
+
+    if (!statusDbId)
+      throw new Error(`Status not found for event ${testEvent.uid}`);
 
     // console.log("statusDbId success :", statusDbId.id);
 
@@ -169,15 +191,15 @@ const addToDB = async (testEvent) => {
 
     nbEventAdded++;
     console.log(
-      `[Open Agenda] ✅ Event ${createCityEvent.id} successfully seeded\n`
+      `[Open Agenda] ✅ Event ${testEvent.uid} successfully added with id  ${createCityEvent.id}\n`
     );
   } catch (error) {
+    errorEvent.push(testEvent);
     console.log(
-      "[Open Agenda] ❌ Error seeding OpenAgenda city events : ",
-      error
+      `[Open Agenda] ❌ Error seeding OpenAgenda city event ${testEvent.uid} : \n${error}`
     );
-    console.log("error Event : ", testEvent);
+    console.log(
+      `[Open Agenda] ❌ Details Event ${testEvent.uid}: ${testEvent}`
+    );
   }
 };
-
-module.exports = initOpenAgendaCityEvents;

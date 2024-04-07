@@ -1,20 +1,18 @@
-const { STATUS, STATES, CATEGORIES } = require("./data/Constant");
-const {
-  CityEventState,
-  CityEventStatus,
-  CityEventCategory,
-} = require("../models/cityEventModel");
+import { CityEventCategory } from "../models/cityEventModel/CityEventCategory";
+import { CityEventState } from "../models/cityEventModel/CityEventState";
+import { CityEventStatus } from "../models/cityEventModel/CityEventStatus";
+import { CATEGORIES, STATES, STATUS } from "./data/Constant";
 
-const models = [
+const models: Record<any, any> = [
   { modelElt: CityEventStatus, data: STATUS },
   { modelElt: CityEventState, data: STATES },
   { modelElt: CityEventCategory, data: CATEGORIES },
 ];
 
-const seedData = async () => {
+export const seedData = async () => {
   console.log("\n[Seeder] ⌛ Start seeding data ...\n");
   try {
-    for (const model of models) {
+    for (const model of Object.values(models)) {
       console.log(`[Seeder] ⌛ Seeding table ${model.modelElt.tableName} ...`);
       await model.modelElt.bulkCreate(model.data, { validate: true });
       console.log(
@@ -26,5 +24,3 @@ const seedData = async () => {
     console.log("[Seeder] ❌ Error seeding data : ", error);
   }
 };
-
-module.exports = seedData;

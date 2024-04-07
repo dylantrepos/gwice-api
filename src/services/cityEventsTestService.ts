@@ -1,4 +1,4 @@
-import { CityEvent } from "../../models/cityEventModel";
+// import { CityEvent } from "../../models/cityEventModel";
 
 type GetCityEventTestListProps = {
   // cityName: string;
@@ -16,7 +16,7 @@ export const getCityEventTestList = async ({}: // cityName,
 // endDate,
 // search,
 GetCityEventTestListProps): Promise<void> => {
-  console.log("getCityEventTestList : ", CityEvent);
+  // console.log("getCityEventTestList : ", CityEvent);
   // const firstEvent = CityEvent.find
   // const cityData = cityList[cityName.toLowerCase()];
   // const categoryIdListParams = categoryIdList

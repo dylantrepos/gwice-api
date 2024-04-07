@@ -8,9 +8,9 @@
     "postinstall": "tsc",
     "watch-node": "nodemon dist/server.js",
     "watch-ts": "tsc -w",
-    "seed": "node seeders/seed.js",
+    "seed": "ts-node src/seeders/seed.ts",
     "migrate": "sequelize db:migrate",
-    "cron": "node cron/cron.js"
+    "cron": "ts-node src/cron/cron.ts"
   },
   "author": "",
   "license": "ISC",
@@ -37,13 +37,16 @@
     "puppeteer-extra": "^3.3.6",
     "puppeteer-extra-plugin-stealth": "^2.11.2",
     "readline-sync": "^1.4.10",
+    "reflect-metadata": "^0.2.2",
     "sequelize": "^6.37.2",
+    "sequelize-typescript": "^2.1.6",
     "sqlite3": "^5.1.7"
   },
   "devDependencies": {
     "@types/cors": "^2.8.17",
-    "@types/node": "^20.10.0",
+    "@types/node": "^20.12.5",
     "@types/pg": "^8.11.4",
+    "@types/validator": "^13.11.9",
     "nodemon": "^3.0.1",
     "sequelize-cli": "^6.6.2",
     "ts-node": "^10.9.1",

@@ -1,6 +1,6 @@
-const initTable = require("../database/createTable");
-const initOpenAgendaCityEvents = require("../seeder/data/OpenAgenda");
-const seedData = require("../seeder/seeder");
+import { initTable } from "../database/createTable";
+import { initOpenAgendaCityEvents } from "../seeder/data/OpenAgenda";
+import { seedData } from "../seeder/seeder";
 
 const startCron = async () => {
   console.log("[Cron] ⌛ Start cron ...\n");

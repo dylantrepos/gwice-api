@@ -1,18 +1,20 @@
 import { cityList } from "../city/cityList";
-import { WhenQuery } from "../types/CulturalEvents";
 
 // Helper function to form time ranges
 export const getTimeRange = (start: number, stop: number, step: number) =>
   Array.from({ length: (stop - start) / step }, (_, i) => start + i * step);
 
 export const cityDoesNotExist = (city: string) => {
-  return !(getCityNameList()).includes(city.toLowerCase());
-}
+  return !getCityNameList().includes(city.toLowerCase());
+};
 
-export const getFormatedDate = (date: Date) => `${date.getUTCDate().toString().padStart(2, '0')}/${(date.getUTCMonth() + 1).toString().padStart(2, '0')}`
+export const getFormatedDate = (date: Date) =>
+  `${date.getUTCDate().toString().padStart(2, "0")}/${(date.getUTCMonth() + 1)
+    .toString()
+    .padStart(2, "0")}`;
 
 export const getExecutionTimeDuration = (executionTime: number) => {
-  let timeMessage = '';
+  let timeMessage = "";
   if (executionTime > 60) {
     const minutes = Math.floor(executionTime / 60);
     const seconds = Math.floor(executionTime % 60);
@@ -22,19 +24,7 @@ export const getExecutionTimeDuration = (executionTime: number) => {
   }
 
   return timeMessage;
-}
-
-export const displayLoadingBar = (when: WhenQuery, percentage: number, length: number, executionTime: number) => {
-  const totalBars = 10;
-  const filledBars = Math.round(percentage / length * totalBars);
-  const emptyBars = totalBars - filledBars;
-
-  const filledBarsString = '#'.repeat(filledBars);
-  const emptyBarsString = '-'.repeat(emptyBars);
-
-  // console.clear();
-  console.log(`[getEventDetails][${when}] [${filledBarsString}${emptyBarsString}] ${Math.round((percentage / length) * 100)}% (${percentage}/${length})\n  ⌛ Execution time: ${getExecutionTimeDuration(executionTime)}`);
-}
+};
 
 /*
  * City name
@@ -44,5 +34,5 @@ export const getCityNameList = (): string[] => {
 };
 
 export const checkCityNameExists = (cityName: string): boolean => {
-  return ((getCityNameList()).includes(cityName.toLowerCase())) ?? false;
+  return getCityNameList().includes(cityName.toLowerCase()) ?? false;
 };

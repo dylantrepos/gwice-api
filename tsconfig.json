@@ -30,6 +30,11 @@
     "noFallthroughCasesInSwitch": true, /* Enable error reporting for fallthrough cases in switch statements. */
     /* Skip type checking .d.ts files that are included with TypeScript. */
     "skipLibCheck": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "types": [
+      "node"
+    ],
     "typeRoots": [
       "./src/@types",
     ], /* Skip type checking all .d.ts files. */
