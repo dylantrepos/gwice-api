@@ -8,19 +8,19 @@ export class CityEventRegistration extends Model {
     type: DataTypes.TEXT,
     allowNull: true,
   })
-  link: string | null = null;
+  link!: string;
 
   @Column({
     type: DataTypes.STRING,
     allowNull: true,
   })
-  email: string | null = null;
+  email!: string;
 
   @Column({
     type: DataTypes.STRING,
     allowNull: true,
   })
-  phone: string | null = null;
+  phone!: string;
 
   @HasMany(() => CityEvent)
   city_events!: CityEvent[];

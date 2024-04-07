@@ -1,17 +1,54 @@
+import {
+  StateId,
+  StateTitle,
+  StatusId,
+  StatusTitle,
+} from "../../types/CityEvents";
+
 export const STATUS = [
-  { status_code: -1, status: "refused" },
-  { status_code: 0, status: "pending moderation" },
-  { status_code: 1, status: "ready to publish" },
-  { status_code: 2, status: "published" },
+  {
+    status_code: StatusId.Refused,
+    status: StatusTitle.Refused,
+  },
+  {
+    status_code: StatusId.PendingModeration,
+    status: StatusTitle.PendingModeration,
+  },
+  {
+    status_code: StatusId.ReadyToPublish,
+    status: StatusTitle.ReadyToPublish,
+  },
+  {
+    status_code: StatusId.Published,
+    status: StatusTitle.Published,
+  },
 ];
 
 export const STATES = [
-  { state_code: 1, state: "scheduled" },
-  { state_code: 2, state: "rescheduled" },
-  { state_code: 3, state: "moved online" },
-  { state_code: 4, state: "postponed" },
-  { state_code: 5, state: "complete" },
-  { state_code: 6, state: "canceled" },
+  {
+    state_code: StateId.Scheduled,
+    state: StateTitle.Scheduled,
+  },
+  {
+    state_code: StateId.Rescheduled,
+    state: StateTitle.Rescheduled,
+  },
+  {
+    state_code: StateId.MovedOnline,
+    state: StateTitle.MovedOnline,
+  },
+  {
+    state_code: StateId.Postponed,
+    state: StateTitle.Postponed,
+  },
+  {
+    state_code: StateId.Complete,
+    state: StateTitle.Complete,
+  },
+  {
+    state_code: StateId.Canceled,
+    state: StateTitle.Canceled,
+  },
 ];
 
 export const CATEGORIES = [

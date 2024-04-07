@@ -7,10 +7,10 @@ import {
   Model,
   Table,
 } from "sequelize-typescript";
-import { CityEventAdress } from "./CityEventAdress";
 import { CityEventCategory } from "./CityEventCategory";
 import { CityEventCityEventCategory } from "./CityEventCityEventCategory";
 import { CityEventCityEventTiming } from "./CityEventCityEventTiming";
+import { CityEventLocation } from "./CityEventLocation";
 import { CityEventOpenAgendaInfo } from "./CityEventOpenAgendaInfo";
 import { CityEventRegistration } from "./CityEventRegistration";
 import { CityEventState } from "./CityEventState";
@@ -41,7 +41,7 @@ export class CityEvent extends Model {
     type: DataTypes.STRING,
     allowNull: true,
   })
-  price: string | null = null;
+  price!: string;
 
   @Column({
     type: DataTypes.STRING,
@@ -94,16 +94,16 @@ export class CityEvent extends Model {
   @BelongsTo(() => CityEventState)
   cityEventState!: CityEventState;
 
-  // CityEventAdress
-  @ForeignKey(() => CityEventAdress)
+  // CityEventLocation
+  @ForeignKey(() => CityEventLocation)
   @Column({
     type: DataTypes.INTEGER,
     allowNull: false,
   })
-  city_event_adress_id!: number;
+  city_event_location_id!: number;
 
-  @BelongsTo(() => CityEventAdress)
-  cityEventAdress!: CityEventAdress;
+  @BelongsTo(() => CityEventLocation)
+  cityEventLocation!: CityEventLocation;
 
   // CityEventRegistration
   @ForeignKey(() => CityEventRegistration)

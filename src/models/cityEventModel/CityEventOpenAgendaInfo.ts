@@ -7,23 +7,23 @@ export class CityEventOpenAgendaInfo extends Model {
     type: DataTypes.STRING,
     allowNull: true,
   })
-  event_uid: string | null = null;
+  event_uid!: string;
 
   @Column({
     type: DataTypes.STRING,
     allowNull: true,
   })
-  creator_uid: string | null = null;
+  creator_uid!: string;
 
   @Column({
     type: DataTypes.DATE,
     allowNull: true,
   })
-  open_agenda_created_at: Date | null = null;
+  open_agenda_created_at!: Date;
 
   @Column({
     type: DataTypes.DATE,
     allowNull: true,
   })
-  open_agenda_updated_at: Date | null = null;
+  open_agenda_updated_at!: Date;
 }

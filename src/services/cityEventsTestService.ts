@@ -1,7 +1,21 @@
 // import { CityEvent } from "../../models/cityEventModel";
 
+import sequelize from "../database/getConnexion";
+import {
+  CityEvent,
+  CityEventCategory,
+  CityEventLocation,
+  CityEventOpenAgendaInfo,
+  CityEventRegistration,
+  CityEventState,
+  CityEventStatus,
+  CityEventTiming,
+} from "../models/cityEventModel/index";
+import { CityEventListReturn, CityEventReturn } from "../types/CityEvents";
+
 type GetCityEventTestListProps = {
-  // cityName: string;
+  cityName: string;
+  eventId: string;
   // categoryIdList: string;
   // nextEventPageIds?: string | null;
   // startDate: string;
@@ -9,13 +23,81 @@ type GetCityEventTestListProps = {
   // search: string;
 };
 
-export const getCityEventTestList = async ({}: // cityName,
-// categoryIdList,
+export const getCityEventTestList = async ({
+  cityName,
+  eventId,
+}: // categoryIdList,
 // nextEventPageIds = null,
 // startDate,
 // endDate,
-// search,
-GetCityEventTestListProps): Promise<void> => {
+// search
+GetCityEventTestListProps): Promise<CityEventReturn> => {
+  const testSeq = sequelize;
+  const cityEvent = await CityEvent.findOne({
+    where: { id: eventId },
+    include: [
+      { model: CityEventCategory },
+      { model: CityEventTiming },
+      { model: CityEventStatus },
+      { model: CityEventState },
+      { model: CityEventLocation },
+      { model: CityEventRegistration },
+      { model: CityEventOpenAgendaInfo },
+    ],
+  });
+
+  console.log("getCityEventTestList cityName : ", cityName);
+  console.log("getCityEventTestList eventId : ", eventId);
+  console.log("getCityEventTestList event : ", cityEvent);
+  console.log("getCityEventTestList event : ", cityEvent);
+  console.log(
+    "getCityEventTestList event timing : ",
+    cityEvent?.city_event_timing[0]
+  );
+
+  if (!cityEvent) {
+    throw new Error("City event not found");
+  }
+
+  const eventFound: CityEventReturn = {
+    id: cityEvent.id,
+    title: cityEvent.title,
+    short_description: cityEvent.short_description,
+    long_description: cityEvent.long_description,
+    price: cityEvent.price,
+    image_url: cityEvent.image_url,
+    minimum_age: cityEvent.minimum_age,
+    status: cityEvent.cityEventStatus.status_code,
+    state: cityEvent.cityEventState.state_code,
+    location: {
+      adress: cityEvent.cityEventLocation.adress,
+      city: cityEvent.cityEventLocation.city,
+      postal_code: cityEvent.cityEventLocation.postal_code,
+    },
+    registration: {
+      link: cityEvent.cityEventRegistration.link,
+      email: cityEvent.cityEventRegistration.email,
+      phone: cityEvent.cityEventRegistration.phone,
+    },
+    timings: cityEvent.city_event_timing.map((timing) => ({
+      begin: timing.start_time,
+      end: timing.end_time,
+    })),
+    openAgenda: {
+      uid: cityEvent.cityEventOpenAgendaInfo.event_uid,
+      creator_uid: cityEvent.cityEventOpenAgendaInfo.creator_uid,
+      open_agenda_created_at:
+        cityEvent.cityEventOpenAgendaInfo.open_agenda_created_at,
+      open_agenda_updated_at:
+        cityEvent.cityEventOpenAgendaInfo.open_agenda_updated_at,
+    },
+    category: cityEvent.city_event_category.map((category) => category.id),
+    createdAt: cityEvent.createdAt,
+    updatedAt: cityEvent.updatedAt,
+  };
+
+  return eventFound;
+
   // console.log("getCityEventTestList : ", CityEvent);
   // const firstEvent = CityEvent.find
   // const cityData = cityList[cityName.toLowerCase()];
@@ -54,4 +136,100 @@ GetCityEventTestListProps): Promise<void> => {
   // console.log("after id : ", nextEventPageIds ?? null);
   // console.log("after : ", axiosRequest.request.res.responseUrl ?? null);
   // return axiosRequest.data ?? [];
+};
+
+type GetCityEventTestListAllProps = {
+  cityName: string;
+  page?: number;
+  pageSize?: number;
+  // categoryIdList: string;
+  // nextEventPageIds?: string | null;
+  // startDate: string;
+  // endDate: string;
+  // search: string;
+};
+
+export const getCityEventTestAllList = async ({
+  cityName,
+  page = 1,
+  pageSize = 20,
+}: // categoryIdList,
+// nextEventPageIds = null,
+// startDate,
+// endDate,
+// search
+GetCityEventTestListAllProps): Promise<CityEventListReturn> => {
+  const testSeq = sequelize;
+  const offset = (page - 1) * pageSize;
+  const events: CityEventReturn[] = [];
+  const totalRecords = await CityEvent.count();
+  const totalPages = Math.ceil(totalRecords / pageSize);
+  console.log("totalPages : ", totalPages);
+
+  const cityEvent = await CityEvent.findAll({
+    offset: offset,
+    limit: pageSize,
+    include: [
+      { model: CityEventCategory },
+      { model: CityEventTiming },
+      { model: CityEventStatus },
+      { model: CityEventState },
+      { model: CityEventLocation },
+      { model: CityEventRegistration },
+      { model: CityEventOpenAgendaInfo },
+    ],
+  });
+
+  console.log("getCityEventTestList cityName : ", cityName);
+
+  if (!cityEvent) {
+    throw new Error("City event not found");
+  }
+
+  cityEvent.map((event) => {
+    const eventFound: CityEventReturn = {
+      id: event.id,
+      title: event.title,
+      short_description: event.short_description,
+      long_description: event.long_description,
+      price: event.price,
+      image_url: event.image_url,
+      minimum_age: event.minimum_age,
+      status: event.cityEventStatus.status_code,
+      state: event.cityEventState.state_code,
+      location: {
+        adress: event.cityEventLocation.adress,
+        city: event.cityEventLocation.city,
+        postal_code: event.cityEventLocation.postal_code,
+      },
+      registration: {
+        link: event.cityEventRegistration.link,
+        email: event.cityEventRegistration.email,
+        phone: event.cityEventRegistration.phone,
+      },
+      timings: event.city_event_timing.map((timing) => ({
+        begin: timing.start_time,
+        end: timing.end_time,
+      })),
+      openAgenda: {
+        uid: event.cityEventOpenAgendaInfo.event_uid,
+        creator_uid: event.cityEventOpenAgendaInfo.creator_uid,
+        open_agenda_created_at:
+          event.cityEventOpenAgendaInfo.open_agenda_created_at,
+        open_agenda_updated_at:
+          event.cityEventOpenAgendaInfo.open_agenda_updated_at,
+      },
+      category: event.city_event_category.map((category) => category.id),
+      createdAt: event.createdAt,
+      updatedAt: event.updatedAt,
+    };
+
+    events.push(eventFound);
+  });
+
+  return {
+    total: totalRecords,
+    events,
+    nextPage: page >= totalPages ? null : page + 1,
+  };
 };

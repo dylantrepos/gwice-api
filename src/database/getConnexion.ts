@@ -1,7 +1,7 @@
 import "dotenv/config.js";
 import { Sequelize } from "sequelize-typescript";
+import { CityEventLocation } from "../models/cityEventModel";
 import { CityEvent } from "../models/cityEventModel/CityEvent";
-import { CityEventAdress } from "../models/cityEventModel/CityEventAdress";
 import { CityEventCategory } from "../models/cityEventModel/CityEventCategory";
 import { CityEventCityEventCategory } from "../models/cityEventModel/CityEventCityEventCategory";
 import { CityEventCityEventTiming } from "../models/cityEventModel/CityEventCityEventTiming";
@@ -30,7 +30,7 @@ const sequelize = new Sequelize({
     CityEventState,
     CityEventStatus,
     CityEventTiming,
-    CityEventAdress,
+    CityEventLocation,
     CityEventCategory,
     CityEventOpenAgendaInfo,
     CityEventRegistration,

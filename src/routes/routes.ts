@@ -5,7 +5,10 @@ import {
   cityEventListController,
   citySearchEventListController,
 } from "../controllers/cityEventsController";
-import { cityEventListTestController } from "../controllers/cityEventsTestController";
+import {
+  cityEventListTestAllController,
+  cityEventListTestController,
+} from "../controllers/cityEventsTestController";
 import { cityListController } from "../controllers/cityListController";
 import { homeController } from "../controllers/homeController";
 import { weatherController } from "../controllers/weatherController";
@@ -21,5 +24,6 @@ router.get("/events/search", citySearchEventListController);
 router.get("/event", cityEventDetailsController);
 
 router.get("/events-test", cityEventListTestController);
+router.get("/events-all-test", cityEventListTestAllController);
 
 export default router;

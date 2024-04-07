@@ -2,10 +2,10 @@ import axios from "axios";
 
 import {
   CityEvent,
-  CityEventAdress,
   CityEventCategory,
   CityEventCityEventCategory,
   CityEventCityEventTiming,
+  CityEventLocation,
   CityEventOpenAgendaInfo,
   CityEventRegistration,
   CityEventStatus,
@@ -45,7 +45,7 @@ export const initOpenAgendaCityEvents = async () => {
         console.log(`[Open Agenda] ✅ Added: ${nbEventAdded} events`);
         console.log(`[Open Agenda] 🛑 Rejected: ${nbEventRejected} events`);
         errorEvent.forEach((e) => {
-          console.log(`[Open Agenda] ❌ Error ${e} \n`);
+          console.log(`[Open Agenda] ❌ Error : `, e, "\n");
         });
         nbEventDone++;
         await addToDB(event);
@@ -93,15 +93,15 @@ const addToDB = async (testEvent: CityEventDetails) => {
       return;
     }
 
-    const [cityEventAddress, created] = await CityEventAdress.findOrCreate({
+    const [cityEventLocation, created] = await CityEventLocation.findOrCreate({
       where: {
         adress: testEvent.location?.address ?? null,
         city: testEvent.location?.city ?? null,
         postal_code: testEvent.location?.insee ?? null,
       },
     });
-    const adressId = cityEventAddress.id;
-    // console.log("adress success", cityEventAddress.id);
+    const locationId = cityEventLocation.id;
+    // console.log("adress success", cityEventLocation.id);
 
     // console.log("category success", testEventCategoryId);
     const categoryDbsId = [];
@@ -159,10 +159,9 @@ const addToDB = async (testEvent: CityEventDetails) => {
       city_event_open_agenda_info_id: createOpenAgenda.id,
       city_event_state_id: testEvent.state,
       city_event_status_id: statusDbId.id,
-      city_event_adress_id: adressId,
+      city_event_location_id: locationId,
       city_event_registration_id: createRegistration.id,
     });
-    // console.log("createCityEvent ", createCityEvent.id);
 
     for (const timing of testEvent.timings) {
       const [createTiming, created] = await CityEventTiming.findOrCreate({
@@ -194,7 +193,7 @@ const addToDB = async (testEvent: CityEventDetails) => {
       `[Open Agenda] ✅ Event ${testEvent.uid} successfully added with id  ${createCityEvent.id}\n`
     );
   } catch (error) {
-    errorEvent.push(testEvent);
+    errorEvent.push(error);
     console.log(
       `[Open Agenda] ❌ Error seeding OpenAgenda city event ${testEvent.uid} : \n${error}`
     );
