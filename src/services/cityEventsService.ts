@@ -57,6 +57,9 @@ export const getCityEventList = async ({
     cityData.cityEvents.url.fetchAllEvents
   );
 
+  console.log("after id : ", nextEventPageIds ?? null);
+  console.log("after : ", axiosRequest.request.res.responseUrl ?? null);
+
   return axiosRequest.data ?? [];
 };
 

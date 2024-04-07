@@ -6,6 +6,8 @@ const {
   CityEventCityEventCategory,
   CityEventRegistration,
   CityEventStatus,
+  CityEventTiming,
+  CityEventCityEventTiming,
   CityEventOpenAgendaInfo,
 } = require("../../models/cityEventModel");
 
@@ -15,7 +17,7 @@ const initOpenAgendaCityEvents = async () => {
   console.log("\n[Seeder] ⌛ Start seeding OpenAgenda city events ...\n");
   try {
     const URL =
-      "https://api.openagenda.com/v2/agendas/89904399/events?key=b139873be49e4eaf8802204829301bb2&detailed=1&includeLabels=true&size=100&state=2";
+      "https://api.openagenda.com/v2/agendas/89904399/events?key=b139873be49e4eaf8802204829301bb2&detailed=1&size=100&state=2&relative[]=upcoming";
     const response = await axios.get(URL);
     const events = response.data;
     // const testEvent = events.events[1];
@@ -38,9 +40,9 @@ const initOpenAgendaCityEvents = async () => {
 const addToDB = async (testEvent) => {
   console.log("\n[Open Agenda] ⌛ Start seeding an OpenAgenda event ...\n");
   try {
-    const testEventCategoryId = testEvent["categories-metropolitaines"][0].id;
+    const testEventCategoryId = testEvent["categories-metropolitaines"];
     // Avoid event with no category
-    if (testEventCategoryId === 28) return;
+    if (testEventCategoryId.includes(28)) return;
 
     const [cityEventAddress, created] = await CityEventAddress.findOrCreate({
       where: {
@@ -53,13 +55,20 @@ const addToDB = async (testEvent) => {
     console.log("adress success", cityEventAddress.id);
 
     console.log("category success", testEventCategoryId);
-    const categoryDbId = await CityEventCategory.findOne({
-      where: { open_agenda_id: testEventCategoryId },
-    });
-    console.log("categoryDbId success", categoryDbId.id);
+    const categoryDbsId = [];
+    for (const categoryId of testEventCategoryId) {
+      const categoryDbId = await CityEventCategory.findOne({
+        where: { open_agenda_id: categoryId },
+      });
+      categoryDbsId.push(categoryDbId.id);
+    }
+    // const categoryDbId = await CityEventCategory.findOne({
+    //   where: { open_agenda_id: testEventCategoryId },
+    // });
+    console.log("categoryDbId success", categoryDbsId);
 
     const statusDbId = await CityEventStatus.findOne({
-      where: { status_code: testEvent.status.id.toString() },
+      where: { status_code: testEvent.status },
     });
 
     // console.log("statusDbIdTEst success :", testEvent.status.id.toString());
@@ -103,12 +112,32 @@ const addToDB = async (testEvent) => {
       city_event_adress_id: adressId,
       city_event_registration_id: createRegistration.id,
     });
-    // console.log("createCityEvent successfully created !");
+    console.log("createCityEvent ", createCityEvent.id);
 
-    const createCategory = await CityEventCityEventCategory.create({
-      city_event_id: createCityEvent.id,
-      city_event_category_id: categoryDbId.id,
-    });
+    for (const timing of testEvent.timings) {
+      const [createTiming, created] = await CityEventTiming.findOrCreate({
+        where: {
+          start_time: timing.begin,
+          end_time: timing.end,
+        },
+      });
+      await CityEventCityEventTiming.create({
+        city_event_id: createCityEvent.id,
+        city_event_timing_id: createTiming.id,
+      });
+    }
+
+    for (const categoryDbId of categoryDbsId) {
+      const createCategory = await CityEventCityEventCategory.create({
+        city_event_id: createCityEvent.id,
+        city_event_category_id: categoryDbId,
+      });
+    }
+
+    // const createCategory = await CityEventCityEventCategory.create({
+    //   city_event_id: createCityEvent.id,
+    //   city_event_category_id: categoryDbId.id,
+    // });
 
     nbEventAdded++;
     console.log(

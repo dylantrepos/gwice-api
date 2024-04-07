@@ -3,10 +3,11 @@ const {
   CityEventStatus,
   CityEventCategory,
   CityEventAdress,
-  CityEventTimings,
+  CityEventTiming,
   CityEventRegistration,
   CityEventOpenAgendaInfo,
   CityEvent,
+  CityEventCityEventTiming,
   CityEventCityEventCategory,
 } = require("../models/cityEventModel");
 
@@ -15,10 +16,11 @@ const models = [
   CityEventStatus,
   CityEventCategory,
   CityEventAdress,
-  CityEventTimings,
+  CityEventTiming,
   CityEventRegistration,
   CityEventOpenAgendaInfo,
   CityEvent,
+  CityEventCityEventTiming,
   CityEventCityEventCategory,
 ];
 
