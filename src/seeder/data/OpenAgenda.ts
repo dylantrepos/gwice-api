@@ -156,6 +156,7 @@ const addToDB = async (testEvent: CityEventDetails) => {
       image_url: `${testEvent.image.base}${testEvent.image.filename}`,
       minimum_age: testEvent.age.min ?? 0,
       event_url: testEvent?.links[0]?.link ?? null,
+      next_timing_start_date: testEvent.nextTiming?.begin,
       city_event_open_agenda_info_id: createOpenAgenda.id,
       city_event_state_id: testEvent.state,
       city_event_status_id: statusDbId.id,

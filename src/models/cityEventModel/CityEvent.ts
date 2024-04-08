@@ -55,6 +55,12 @@ export class CityEvent extends Model {
   })
   minimum_age!: number;
 
+  @Column({
+    type: DataTypes.STRING,
+    allowNull: false,
+  })
+  next_timing_start_date!: string;
+
   /**
    * Foreign keys
    *

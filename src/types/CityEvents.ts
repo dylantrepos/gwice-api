@@ -198,6 +198,7 @@ export interface CityEventReturn {
   minimum_age: number;
   status: number;
   state: number;
+  nextTiming: string;
   location: {
     adress: string | null;
     city: string | null;
@@ -208,7 +209,7 @@ export interface CityEventReturn {
     email: string | null;
     phone: string | null;
   };
-  category: number[];
+  category: any[];
   openAgenda: {
     uid: string | null;
     creator_uid: string | null;
