@@ -12,6 +12,7 @@ import {
 import { cityListController } from "../controllers/cityListController";
 import { homeController } from "../controllers/homeController";
 import { weatherController } from "../controllers/weatherController";
+import { cityEventsMiddelware } from "../middleware/cityEventsMiddleware";
 
 const router = Router();
 
@@ -24,6 +25,10 @@ router.get("/events/search", citySearchEventListController);
 router.get("/event", cityEventDetailsController);
 
 router.get("/events-test", cityEventListTestController);
-router.get("/events-all-test", cityEventListTestAllController);
+router.get(
+  "/events-all-test",
+  cityEventsMiddelware,
+  cityEventListTestAllController
+);
 
 export default router;
