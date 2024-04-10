@@ -167,8 +167,8 @@ const addToDB = async (testEvent: CityEventDetails) => {
     for (const timing of testEvent.timings) {
       const [createTiming, created] = await CityEventTiming.findOrCreate({
         where: {
-          start_time: timing.begin,
-          end_time: timing.end,
+          start_time: new Date(timing.begin),
+          end_time: new Date(timing.end),
         },
       });
       await CityEventCityEventTiming.create({
@@ -183,11 +183,6 @@ const addToDB = async (testEvent: CityEventDetails) => {
         city_event_category_id: categoryDbId,
       });
     }
-
-    // const createCategory = await CityEventCityEventCategory.create({
-    //   city_event_id: createCityEvent.id,
-    //   city_event_category_id: categoryDbId.id,
-    // });
 
     nbEventAdded++;
     console.log(

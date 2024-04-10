@@ -8,12 +8,16 @@ export const cityEventsMiddelware = (
   res: Response,
   next: NextFunction
 ): void => {
+  const date = new Date();
   const cityName = (req.query.cityName as string) ?? "";
   const from = (req.query.from as string) ?? "";
   const to = (req.query.to as string) ?? "";
   const category = (req.query.categoryId as string)?.trim() ?? "";
-  const fromDate = new Date(from);
-  const toDate = new Date(to);
+  const fromDate = from.length > 0 ? new Date(from) : date;
+  const toDate =
+    to.length > 0
+      ? new Date(to)
+      : new Date(date.setFullYear(date.getFullYear() + 1));
 
   const cityResult = validateCity(cityName);
   const dateResult = validateDateFormat(fromDate, toDate);

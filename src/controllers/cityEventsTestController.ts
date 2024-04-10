@@ -6,36 +6,17 @@ import {
   getCityEventTestList,
 } from "../services/cityEventsTestService";
 //////////
-/**
- * TODO : Add city
- */
+
 export const cityEventListTestController = async (
   req: Request,
   res: Response
 ) => {
   console.log("req", req);
   const cityName = (req.query.cityName as string) ?? "";
-  const eventId = (req.query.id as string) ?? "";
-  // const categoryIdList = (req.query.categoryIdList as string) ?? undefined;
-  // const nextEventPageIds = (req.query.nextEventPageIds as string) ?? null;
-  // const search = (req.query.search as string) ?? null;
-  // let startDate = (req.query.startDate as string) ?? null;
-  // let endDate = (req.query.endDate as string) ?? null;
-
-  // console.log({ startDate, endDate });
-
-  // if (!cityName || typeof cityName !== "string") {
-  //   res.status(400).send({ error: "City is required." });
-  //   return;
-  // }
-
-  // if (!checkCityNameExists(cityName)) {
-  //   res.status(400).send({
-  //     error: `${cityName} is not a valid city or is not available for now. Check the list of the available cities.`,
-  //     citiesAvailable: getCityNameList(),
-  //   });
-  //   return;
-  // }
+  const eventId = (req.query.eventId as string) ?? "";
+  /**
+   * TODO : Implement middleware/validator
+   */
 
   try {
     const events = await getCityEventTestList({
@@ -69,14 +50,10 @@ export const cityEventListTestController = async (
   }
 };
 
-/**
- * TODO : Add city
- */
 export const cityEventListTestAllController = async (
   req: Request,
   res: Response
 ) => {
-  console.log("req", req);
   const cityName = req.query.cityName as string;
   const page = +(req.query.page ?? 1);
   const pageSize = +(req.query.pageSize ?? 20);
@@ -89,12 +66,18 @@ export const cityEventListTestAllController = async (
       ? categoryIdReq.split(",").map((item) => +item)
       : CATEGORIES.map((category) => category.open_agenda_id);
 
+  /**
+   * TODO : Search with start/end date
+   * TODO : Search one event only with its id
+   */
   try {
     const events = await getCityEventTestAllList({
       cityName,
       page,
       pageSize,
       categoryId,
+      from,
+      to,
       // categoryIdList,
       // nextEventPageIds,
       // startDate,

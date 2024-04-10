@@ -82,8 +82,8 @@ GetCityEventTestListProps): Promise<CityEventReturn> => {
       phone: cityEvent.cityEventRegistration.phone,
     },
     timings: cityEvent.city_event_timing.map((timing) => ({
-      begin: timing.start_time,
-      end: timing.end_time,
+      begin: timing.start_time.toISOString(),
+      end: timing.end_time.toISOString(),
     })),
     openAgenda: {
       uid: cityEvent.cityEventOpenAgendaInfo.event_uid,
@@ -145,6 +145,8 @@ type GetCityEventTestListAllProps = {
   page?: number;
   pageSize?: number;
   categoryId?: number[];
+  from: Date;
+  to: Date;
   // categoryIdList: string;
   // nextEventPageIds?: string | null;
   // startDate: string;
@@ -157,6 +159,8 @@ export const getCityEventTestAllList = async ({
   page = 1,
   pageSize = 20,
   categoryId = [],
+  from,
+  to,
 }: // categoryIdList,
 // nextEventPageIds = null,
 // startDate,
@@ -166,6 +170,8 @@ GetCityEventTestListAllProps): Promise<CityEventListReturn> => {
   const testSeq = sequelize;
   const offset = (page - 1) * pageSize;
   const events: CityEventReturn[] = [];
+
+  console.log({ cityName, from, to, categoryId, page, pageSize });
 
   const countCat = await CityEvent.count({
     include: [
@@ -180,8 +186,6 @@ GetCityEventTestListAllProps): Promise<CityEventListReturn> => {
 
   // const totalRecords = await CityEvent.count();
   const totalPages = Math.ceil(countCat / pageSize);
-  console.log("totalPages : ", totalPages);
-  console.log("totalPages : ", categoryId);
 
   const cityEvent = await CityEvent.findAll({
     offset: offset,
@@ -195,7 +199,23 @@ GetCityEventTestListAllProps): Promise<CityEventListReturn> => {
         through: { attributes: [] },
         where: { open_agenda_id: { [Op.in]: categoryId } },
       },
-      { model: CityEventTiming },
+      {
+        model: CityEventTiming,
+        where: {
+          [Op.and]: [
+            {
+              start_time: {
+                [Op.gte]: from,
+              },
+            },
+            {
+              end_time: {
+                [Op.lte]: to,
+              },
+            },
+          ],
+        },
+      },
       { model: CityEventStatus },
       { model: CityEventState },
       { model: CityEventLocation },
@@ -204,13 +224,11 @@ GetCityEventTestListAllProps): Promise<CityEventListReturn> => {
     ],
   });
 
-  console.log("getCityEventTestList cityName : ", cityName);
-
   if (!cityEvent) {
     throw new Error("City event not found");
   }
 
-  cityEvent.map((event) => {
+  cityEvent.map((event): void => {
     const eventFound: CityEventReturn = {
       id: event.id,
       title: event.title,
@@ -232,8 +250,8 @@ GetCityEventTestListAllProps): Promise<CityEventListReturn> => {
         phone: event.cityEventRegistration.phone,
       },
       timings: event.city_event_timing.map((timing) => ({
-        begin: timing.start_time,
-        end: timing.end_time,
+        begin: timing.start_time.toISOString(),
+        end: timing.end_time.toISOString(),
       })),
       nextTiming: event.next_timing_start_date,
       openAgenda: {
