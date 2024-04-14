@@ -132,6 +132,12 @@ export interface Timing {
   end: string;
 }
 
+interface Category {
+  id?: number;
+  title: string;
+  open_agenda_id: number;
+}
+
 export interface CityEventDetails {
   longDescription: Record<string, string>;
   country: Record<string, string>;
@@ -198,7 +204,7 @@ export interface CityEventReturn {
   minimum_age: number;
   status: number;
   state: number;
-  nextTiming: string;
+  nextTiming: Timing;
   location: {
     adress: string | null;
     city: string | null;
@@ -209,7 +215,7 @@ export interface CityEventReturn {
     email: string | null;
     phone: string | null;
   };
-  category: any[];
+  category: Category[];
   openAgenda: {
     uid: string | null;
     creator_uid: string | null;

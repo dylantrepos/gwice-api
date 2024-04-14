@@ -11,8 +11,6 @@ import { CityEventState } from "../models/cityEventModel/CityEventState";
 import { CityEventStatus } from "../models/cityEventModel/CityEventStatus";
 import { CityEventTiming } from "../models/cityEventModel/CityEventTiming";
 
-console.log("process.env.PGDATABASE", process.env);
-
 const sequelize = new Sequelize({
   database: process.env.PGDATABASE,
   username: process.env.PGUSER,
@@ -25,6 +23,17 @@ const sequelize = new Sequelize({
       require: true,
       rejectUnauthorized: false,
     },
+    useUTC: false,
+    dateStrings: true,
+    // @ts-ignore
+    typeCast: function (field, next) {
+      // for reading from database
+      if (field.type === "DATETIME") {
+        return field.string();
+      }
+      return next();
+    },
+    timezone: "Europe/Paris",
   },
   models: [
     CityEventState,

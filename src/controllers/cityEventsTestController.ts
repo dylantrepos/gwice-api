@@ -54,6 +54,7 @@ export const cityEventListTestAllController = async (
   req: Request,
   res: Response
 ) => {
+  console.log("req.query", req.query);
   const cityName = req.query.cityName as string;
   const page = +(req.query.page ?? 1);
   const pageSize = +(req.query.pageSize ?? 20);
