@@ -34,7 +34,6 @@ export const getCityEventTestList = async ({
 // endDate,
 // search
 GetCityEventTestListProps): Promise<CityEventReturn> => {
-  const testSeq = sequelize;
   const cityEvent = await CityEvent.findOne({
     where: { id: eventId },
     include: [
@@ -114,45 +113,6 @@ GetCityEventTestListProps): Promise<CityEventReturn> => {
   };
 
   return eventFound;
-
-  // console.log("getCityEventTestList : ", CityEvent);
-  // const firstEvent = CityEvent.find
-  // const cityData = cityList[cityName.toLowerCase()];
-  // const categoryIdListParams = categoryIdList
-  //   ? {
-  //       "categories-metropolitaines[]": categoryIdList
-  //         .split(",")
-  //         .filter(Boolean)
-  //         .map(Number),
-  //     }
-  //   : {};
-  // console.log({
-  //   cityName,
-  //   categoryIdList,
-  //   nextEventPageIds,
-  //   startDate,
-  //   endDate,
-  //   search,
-  // // });
-  // const axiosRequest = await axios.get(cityData.cityEvents.url.fetchAllEvents, {
-  //   params: {
-  //     ...categoryIdListParams,
-  //     search: search && search.length > 0 ? search : null,
-  //     "timings[gte]": startDate && startDate.length > 0 ? startDate : null,
-  //     "timings[lte]": endDate && endDate.length > 0 ? endDate : null,
-  //     "timings[tz]": "Europe/Paris",
-  //     "after[]": nextEventPageIds ?? null,
-  //     "relative[]": "upcoming",
-  //     sort: "timings.asc",
-  //   },
-  // });
-  // console.log(
-  //   "cityData.cityEvents.url.fetchAllEvents : ",
-  //   cityData.cityEvents.url.fetchAllEvents
-  // );
-  // console.log("after id : ", nextEventPageIds ?? null);
-  // console.log("after : ", axiosRequest.request.res.responseUrl ?? null);
-  // return axiosRequest.data ?? [];
 };
 
 type GetCityEventTestListAllProps = {
@@ -176,65 +136,55 @@ export const getCityEventTestAllList = async ({
   categoryId = [],
   from,
   to,
-}: // categoryIdList,
-// nextEventPageIds = null,
-// startDate,
-// endDate,
-// search
-GetCityEventTestListAllProps): Promise<CityEventListReturn> => {
+}: GetCityEventTestListAllProps): Promise<CityEventListReturn> => {
   const testSeq = sequelize;
   const offset = (page - 1) * pageSize;
   const events: CityEventReturn[] = [];
 
-  console.log({ cityName, from, to, categoryId, page, pageSize });
+  console.log("here : ", { cityName, from, to, categoryId, page, pageSize });
 
-  const toInclude = [
-    {
-      model: CityEventCategory,
-      attributes: ["id", "title", "open_agenda_id"],
-      through: { attributes: [] },
-      where: { open_agenda_id: { [Op.in]: categoryId } },
-    },
-    {
-      model: CityEventTiming,
-      as: "city_event_timing",
-      through: { attributes: [] },
-      where: {
-        [Op.and]: [
-          {
-            start_time: {
-              [Op.gte]: moment(from).startOf("day"),
-            },
-          },
-          {
-            end_time: {
-              [Op.lte]: to,
-            },
-          },
-          {
-            end_time: {
-              [Op.gt]: from,
-            },
-          },
-        ],
-      },
-    },
-    { model: CityEventStatus },
-    { model: CityEventState },
-    { model: CityEventLocation },
-    { model: CityEventRegistration },
-    { model: CityEventOpenAgendaInfo },
-  ];
-
-  const countCat = await CityEvent.count({
-    include: toInclude,
-  });
-
-  const totalPages = Math.ceil(countCat / pageSize);
-
-  const cityEvent = await CityEvent.findAll({
+  const cityEvent = await CityEvent.findAndCountAll({
     // group: ["CityEvent.id"],
-    include: toInclude,
+    distinct: true,
+    col: "id",
+    include: [
+      {
+        model: CityEventCategory,
+        attributes: ["id", "title", "open_agenda_id"],
+        as: "city_event_category",
+        through: { attributes: [] },
+        where: { open_agenda_id: { [Op.in]: categoryId } },
+      },
+      {
+        model: CityEventTiming,
+        as: "city_event_timing",
+        through: { attributes: [] },
+        where: {
+          [Op.and]: [
+            {
+              start_time: {
+                [Op.gte]: moment(from).startOf("day"),
+              },
+            },
+            {
+              end_time: {
+                [Op.lte]: to,
+              },
+            },
+            {
+              end_time: {
+                [Op.gt]: moment(),
+              },
+            },
+          ],
+        },
+      },
+      { model: CityEventStatus },
+      { model: CityEventState },
+      { model: CityEventLocation },
+      { model: CityEventRegistration },
+      { model: CityEventOpenAgendaInfo },
+    ],
     order: [
       [
         { model: CityEventTiming, as: "city_event_timing" },
@@ -245,18 +195,30 @@ GetCityEventTestListAllProps): Promise<CityEventListReturn> => {
     offset: offset,
     limit: pageSize,
     subQuery: false,
-
-    logging: console.log,
+    // logging: console.log,
   });
 
   if (!cityEvent) {
     throw new Error("City event not found");
   }
 
-  // // @ts-ignore
-  // return cityEvent;
+  const totalPages = Math.ceil(cityEvent.count / pageSize);
 
-  cityEvent.map((event): void => {
+  const eventWithCategories = [];
+  const findAndAddCategories = async (event: CityEvent) => {
+    const categories = await CityEvent.findOne({
+      where: { id: event.id },
+      include: [
+        {
+          model: CityEventCategory,
+          attributes: ["id", "title", "open_agenda_id"],
+          as: "city_event_category",
+          through: { attributes: [] },
+        },
+      ],
+      subQuery: false,
+    });
+
     const nextTiming = event.city_event_timing.find((timing) => {
       const startTime = moment(timing.start_time);
       const endTime = moment(timing.end_time);
@@ -266,6 +228,8 @@ GetCityEventTestListAllProps): Promise<CityEventListReturn> => {
         endTime.isAfter(moment())
       );
     });
+
+    if (!categories) return null;
 
     const eventFound: CityEventReturn = {
       id: event.id,
@@ -307,17 +271,23 @@ GetCityEventTestListAllProps): Promise<CityEventListReturn> => {
         open_agenda_updated_at:
           event.cityEventOpenAgendaInfo.open_agenda_updated_at,
       },
-      category: event.city_event_category,
+
+      category: categories.city_event_category,
       createdAt: event.createdAt,
       updatedAt: event.updatedAt,
     };
 
-    events.push(eventFound);
-  });
+    return eventFound;
+  };
+
+  for (const event of cityEvent.rows) {
+    const eventFound = await findAndAddCategories(event);
+    if (eventFound) eventWithCategories.push(eventFound);
+  }
 
   return {
-    total: countCat,
-    events,
+    total: cityEvent.count,
+    events: eventWithCategories,
     nextPage: page >= totalPages ? null : page + 1,
   };
 };

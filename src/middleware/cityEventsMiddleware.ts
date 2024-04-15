@@ -25,7 +25,7 @@ export const cityEventsMiddelware = (
 
   [cityResult, dateResult, categoryResult].some((result) => {
     if (!result.valid) {
-      res.status(400).send({ error: result.error });
+      res.status(200).send({ message: result.error });
       return true;
     }
     return false;

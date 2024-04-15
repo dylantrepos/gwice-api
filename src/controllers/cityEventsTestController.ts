@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import moment from "moment";
 import { client } from "../mongo/connection";
 import { CATEGORIES } from "../seeder/data/Constant";
 import {
@@ -58,8 +59,11 @@ export const cityEventListTestAllController = async (
   const cityName = req.query.cityName as string;
   const page = +(req.query.page ?? 1);
   const pageSize = +(req.query.pageSize ?? 20);
-  const from = new Date((req.query.from as string) ?? "");
-  const to = new Date((req.query.to as string) ?? "");
+  const from =
+    moment.utc((req.query.from as string)?.split("+")[0]).toDate() ?? moment();
+  const to = req.query.to
+    ? moment.utc((req.query.to as string)?.split("+")[0]).toDate()
+    : moment().add(10, "years").toDate();
   const categoryIdReq: string = (req.query.categoryId as string)?.trim() ?? "";
 
   const categoryId: number[] =
@@ -67,10 +71,6 @@ export const cityEventListTestAllController = async (
       ? categoryIdReq.split(",").map((item) => +item)
       : CATEGORIES.map((category) => category.open_agenda_id);
 
-  /**
-   * TODO : Search with start/end date
-   * TODO : Search one event only with its id
-   */
   try {
     const events = await getCityEventTestAllList({
       cityName,
