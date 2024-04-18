@@ -1,5 +1,5 @@
 import { MongoClient } from "mongodb";
-import { WhenQuery } from "../types/CityEvents";
+import { WhenQuery } from "../features/cityEvents/types/CityEvents";
 import { cityDoesNotExist, timeQueries } from "../utils/utils";
 
 import puppeteer from "puppeteer-extra";

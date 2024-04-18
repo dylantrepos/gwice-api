@@ -1,8 +1,10 @@
 import bodyParser from "body-parser";
+import chalk from "chalk";
 import cors from "cors";
 import "dotenv/config.js";
 import express from "express";
 import http from "http";
+import morgan from "morgan";
 import Router from "./routes/routes";
 
 const app = express();
@@ -11,6 +13,17 @@ const HOST = process.env.HOST || "localhost";
 
 app.use(cors());
 app.use(bodyParser.json());
+export const morganMiddleware = morgan(function (tokens, req, res) {
+  return [
+    "---------------\n",
+    chalk.hex("#34ace0").bold(tokens.method(req, res)),
+    chalk.hex("#ffb142")(tokens.status(req, res)),
+    chalk.hex("#ff5252")(tokens.url(req, res)),
+  ].join(" ");
+});
+
+app.use(morganMiddleware);
+
 app.use(Router);
 
 const server = http.createServer(app);

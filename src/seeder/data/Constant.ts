@@ -3,7 +3,7 @@ import {
   StateTitle,
   StatusId,
   StatusTitle,
-} from "../../types/CityEvents";
+} from "../../features/cityEvents/types/Constant";
 
 export const STATUS = [
   {

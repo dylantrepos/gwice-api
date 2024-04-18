@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
-import { validateCategory } from "../validator/cityEvents/categoryValidator";
-import { validateCity } from "../validator/cityEvents/cityValidator";
-import { validateDateFormat } from "../validator/cityEvents/dateValidator";
+import { validateCategory } from "../validators/categoryValidator";
+import { validateCity } from "../validators/cityValidator";
+import { validateDateFormat } from "../validators/dateValidator";
 
 export const cityEventsMiddelware = (
   req: Request,

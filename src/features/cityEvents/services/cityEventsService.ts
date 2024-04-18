@@ -2,7 +2,7 @@
 
 import moment from "moment";
 import { Op } from "sequelize";
-import sequelize from "../database/getConnexion";
+import sequelize from "../../../database/getConnexion";
 import {
   CityEvent,
   CityEventCategory,
@@ -12,136 +12,27 @@ import {
   CityEventState,
   CityEventStatus,
   CityEventTiming,
-} from "../models/cityEventModel/index";
+} from "../../../models/cityEventModel/index";
 import { CityEventListReturn, CityEventReturn } from "../types/CityEvents";
 
-type GetCityEventTestListProps = {
-  cityName: string;
-  eventId: string;
-  // categoryIdList: string;
-  // nextEventPageIds?: string | null;
-  // startDate: string;
-  // endDate: string;
-  // search: string;
-};
-
-export const getCityEventTestList = async ({
-  cityName,
-  eventId,
-}: // categoryIdList,
-// nextEventPageIds = null,
-// startDate,
-// endDate,
-// search
-GetCityEventTestListProps): Promise<CityEventReturn> => {
-  const cityEvent = await CityEvent.findOne({
-    where: { id: eventId },
-    include: [
-      { model: CityEventCategory },
-      { model: CityEventTiming },
-      { model: CityEventStatus },
-      { model: CityEventState },
-      { model: CityEventLocation },
-      { model: CityEventRegistration },
-      { model: CityEventOpenAgendaInfo },
-    ],
-  });
-
-  console.log("getCityEventTestList cityName : ", cityName);
-  console.log("getCityEventTestList eventId : ", eventId);
-  console.log("getCityEventTestList event : ", cityEvent);
-  console.log("getCityEventTestList event : ", cityEvent);
-  console.log(
-    "getCityEventTestList event timing : ",
-    cityEvent?.city_event_timing[0]
-  );
-
-  if (!cityEvent) {
-    throw new Error("City event not found");
-  }
-
-  const nextTiming = cityEvent.city_event_timing.find((timing) => {
-    const startTime = moment(timing.start_time);
-    const endTime = moment(timing.end_time);
-    return (
-      startTime.isSameOrAfter(moment().startOf("day")) &&
-      endTime.isAfter(moment().add(2, "hour"))
-    );
-    // must be today or in the future
-    // timing.end_time  doit etre superieur a la date et l'heure actuelle
-  });
-
-  const eventFound: CityEventReturn = {
-    id: cityEvent.id,
-    title: cityEvent.title,
-    short_description: cityEvent.short_description,
-    long_description: cityEvent.long_description,
-    price: cityEvent.price,
-    image_url: cityEvent.image_url,
-    minimum_age: cityEvent.minimum_age,
-    status: cityEvent.cityEventStatus.status_code,
-    state: cityEvent.cityEventState.state_code,
-    nextTiming: {
-      begin: nextTiming?.start_time.toISOString() ?? "",
-      end: nextTiming?.end_time.toISOString() ?? "",
-    },
-    location: {
-      adress: cityEvent.cityEventLocation.adress,
-      city: cityEvent.cityEventLocation.city,
-      postal_code: cityEvent.cityEventLocation.postal_code,
-    },
-    registration: {
-      link: cityEvent.cityEventRegistration.link,
-      email: cityEvent.cityEventRegistration.email,
-      phone: cityEvent.cityEventRegistration.phone,
-    },
-    timings: cityEvent.city_event_timing.map((timing) => ({
-      begin: timing.start_time.toISOString(),
-      end: timing.end_time.toISOString(),
-    })),
-    openAgenda: {
-      uid: cityEvent.cityEventOpenAgendaInfo.event_uid,
-      creator_uid: cityEvent.cityEventOpenAgendaInfo.creator_uid,
-      open_agenda_created_at:
-        cityEvent.cityEventOpenAgendaInfo.open_agenda_created_at,
-      open_agenda_updated_at:
-        cityEvent.cityEventOpenAgendaInfo.open_agenda_updated_at,
-    },
-    category: cityEvent.city_event_category.map((category) => category.id),
-    createdAt: cityEvent.createdAt,
-    updatedAt: cityEvent.updatedAt,
-  };
-
-  return eventFound;
-};
-
-type GetCityEventTestListAllProps = {
+type GetCityEventsProps = {
   cityName: string;
   page?: number;
   pageSize?: number;
   categoryId?: number[];
   from: Date;
   to: Date;
-  // categoryIdList: string;
-  // nextEventPageIds?: string | null;
-  // startDate: string;
-  // endDate: string;
-  // search: string;
 };
 
-export const getCityEventTestAllList = async ({
-  cityName,
+export const getCityEvents = async ({
   page = 1,
   pageSize = 20,
   categoryId = [],
   from,
   to,
-}: GetCityEventTestListAllProps): Promise<CityEventListReturn> => {
+}: GetCityEventsProps): Promise<CityEventListReturn> => {
   const testSeq = sequelize;
   const offset = (page - 1) * pageSize;
-  const events: CityEventReturn[] = [];
-
-  console.log("here : ", { cityName, from, to, categoryId, page, pageSize });
 
   const cityEvent = await CityEvent.findAndCountAll({
     // group: ["CityEvent.id"],

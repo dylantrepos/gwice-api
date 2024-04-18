@@ -1,5 +1,6 @@
 import axios from "axios";
 
+import { CityEventDetails } from "../../features/cityEvents/types/CityEvents";
 import {
   CityEvent,
   CityEventCategory,
@@ -11,7 +12,6 @@ import {
   CityEventStatus,
   CityEventTiming,
 } from "../../models/cityEventModel/index";
-import { CityEventDetails } from "../../types/CityEvents";
 
 let nbEventAdded = 0;
 let nbEventRejected = 0;

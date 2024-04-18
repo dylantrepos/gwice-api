@@ -1,6 +1,6 @@
-import { CATEGORIES } from "../../seeder/data/Constant";
-import { ErrorMessages } from "../../types/validator/Message";
-import { IValidator } from "../../types/validator/Validator";
+import { CATEGORIES } from "../../../seeder/data/Constant";
+import { ErrorMessages } from "../types/validator/Message";
+import { IValidator } from "../types/validator/Validator";
 
 const validCategoryIds = CATEGORIES.map((category) => category.open_agenda_id);
 

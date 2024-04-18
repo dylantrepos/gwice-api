@@ -1,6 +1,6 @@
-import { ErrorMessages } from "../../types/validator/Message";
-import { IValidator } from "../../types/validator/Validator";
-import { checkCityNameExists } from "../../utils/utils";
+import { checkCityNameExists } from "../../../utils/utils";
+import { ErrorMessages } from "../types/validator/Message";
+import { IValidator } from "../types/validator/Validator";
 
 export const validateCity = (cityName: string): IValidator => {
   if (!cityName || typeof cityName !== "string") {
