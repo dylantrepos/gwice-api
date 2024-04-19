@@ -1,9 +1,10 @@
 import { NextFunction, Request, Response } from "express";
+import { checkMiddlewareError } from "../../../utils/utils";
 import { validateCategory } from "../validators/categoryValidator";
 import { validateCity } from "../validators/cityValidator";
 import { validateDateFormat } from "../validators/dateValidator";
 
-export const cityEventsMiddelware = (
+export const cityEventsMiddleware = (
   req: Request,
   res: Response,
   next: NextFunction
@@ -23,11 +24,5 @@ export const cityEventsMiddelware = (
   const dateResult = validateDateFormat(fromDate, toDate);
   const categoryResult = validateCategory(category);
 
-  [cityResult, dateResult, categoryResult].some((result) => {
-    if (!result.valid) {
-      res.status(200).send({ message: result.error });
-      return true;
-    }
-    return false;
-  }) || next();
+  checkMiddlewareError([cityResult, dateResult, categoryResult], res) || next();
 };

@@ -1,16 +1,20 @@
-// export const loggerFormat = logger(function (tokens, req, res) {
-//   return `
-// [${chalk
-//     .hex("#34ace0")
-//     .bold(
-//       tokens.method(req, res)
-//     )}] ${chalk.hex("#ff5252").bold(tokens.url(req, res))}
-//     STATUS ${chalk.hex("#ffb142")(tokens.status(req, res))}
-//     QUERY ${chalk.hex("#fffa65")(JSON.stringify((req as Request).query))}
-//     INFO ${chalk.hex("#2ed573")(tokens["response-time"](req, res) + " ms")}
-//     FROM ${
-//       (chalk.hex("#fffa65")("from " + tokens.referrer(req, res)),
-//       chalk.hex("#1e90ff")(tokens["user-agent"](req, res)))
-//     }
-//       `;
-// });
+import chalk from "chalk";
+import { Request } from "express";
+import morgan from "morgan";
+
+export const morganMiddleware = morgan(function (tokens, req, res) {
+  return (
+    [
+      "---------------\n",
+      chalk.hex("#fff").bold(`[${tokens.method(req, res)}]`),
+      chalk.hex("#ffb142")(tokens.status(req, res)),
+      chalk.hex("#381bd2")(tokens.url(req, res)),
+      ,
+    ].join(" ") +
+    `\n ${chalk.hex("#fff")("Query:")} { ${Object.entries(
+      (req as Request).query
+    )
+      .map(([key, value]) => `${chalk.hex("#34ace0").bold(key)}: ${value}`)
+      .join(", ")} } `
+  );
+});

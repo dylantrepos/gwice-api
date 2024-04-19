@@ -5,14 +5,6 @@ import { CATEGORIES } from "../../../seeder/data/Constant";
 import { getCityEvents } from "../services/cityEventsService";
 
 export const cityEventsController = async (req: Request, res: Response) => {
-  // console.log(
-  //   `[cityEventsController][${req.method}] ${req.route.path} (${req.path})`
-  // );
-  // console.log(
-  //   `[cityEventsController][${req.method}] Query : ${JSON.stringify(
-  //     req.query
-  //   )}`
-  // );
   const cityName = req.query.cityName as string;
   const page = +(req.query.page ?? 1);
   const pageSize = +(req.query.pageSize ?? 20);

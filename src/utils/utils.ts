@@ -1,4 +1,7 @@
+import { Response } from "express";
 import { cityList } from "../city/cityList";
+import { IValidator } from "../features/cityEvents/types/validator/Validator";
+import { CityEvent } from "../models/cityEventModel";
 
 // Helper function to form time ranges
 export const getTimeRange = (start: number, stop: number, step: number) =>
@@ -36,3 +39,25 @@ export const getCityNameList = (): string[] => {
 export const checkCityNameExists = (cityName: string): boolean => {
   return getCityNameList().includes(cityName.toLowerCase()) ?? false;
 };
+
+export const checkCityEventIdExists = async (
+  eventId: number
+): Promise<boolean> => {
+  try {
+    const exist = await CityEvent.findOne({
+      where: { id: eventId },
+    });
+    return exist ? true : false;
+  } catch (error) {
+    return false;
+  }
+};
+
+export const checkMiddlewareError = (checkItems: IValidator[], res: Response) =>
+  checkItems.some((result: IValidator) => {
+    if (!result.valid) {
+      res.status(400).send({ message: result.error });
+      return true;
+    }
+    return false;
+  });
