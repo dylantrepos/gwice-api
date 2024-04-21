@@ -1,7 +1,13 @@
 import { describe, expect, it } from "@jest/globals";
-import request from "supertest";
+import request, { Response } from "supertest";
 import { ErrorMessages } from "../../../src/features/cityEvents/types/validator/Message";
 import server from "../../../src/server";
+
+const expectError = (res: Response, expectedErrorMessage: ErrorMessages) => {
+  expect(res.statusCode).toEqual(400);
+  expect(res.body).toHaveProperty("error");
+  expect(res.body.error).toEqual(expectedErrorMessage);
+};
 
 describe("[CityEventDetails]", () => {
   it("[OK] Should retreive event with correct id", async () => {
@@ -19,9 +25,7 @@ describe("[CityEventDetails]", () => {
       cityName: "Lille",
     });
 
-    expect(res.statusCode).toEqual(400);
-    expect(res.body).toHaveProperty("error");
-    expect(res.body.error).toEqual(ErrorMessages.EventIdIsRequired);
+    expectError(res, ErrorMessages.EventIdIsRequired);
   });
 
   it(`[ERR] Wrong eventId should return 400 with error : ${ErrorMessages.InvalidEventId}`, async () => {
@@ -30,9 +34,7 @@ describe("[CityEventDetails]", () => {
       eventId: 9999999,
     });
 
-    expect(res.statusCode).toEqual(400);
-    expect(res.body).toHaveProperty("error");
-    expect(res.body.error).toEqual(ErrorMessages.InvalidEventId);
+    expectError(res, ErrorMessages.InvalidEventId);
   });
 
   it(`[ERR] Wrong type of eventId should return 400 with error : ${ErrorMessages.InvalidEventIdFormat}`, async () => {
@@ -41,9 +43,7 @@ describe("[CityEventDetails]", () => {
       eventId: "abcde",
     });
 
-    expect(res.statusCode).toEqual(400);
-    expect(res.body).toHaveProperty("error");
-    expect(res.body.error).toEqual(ErrorMessages.InvalidEventIdFormat);
+    expectError(res, ErrorMessages.InvalidEventIdFormat);
   });
 
   it(`[ERR] Missing cityName should return 400 with error : ${ErrorMessages.CityIsRequired}`, async () => {
@@ -51,9 +51,7 @@ describe("[CityEventDetails]", () => {
       eventId: 1,
     });
 
-    expect(res.statusCode).toEqual(400);
-    expect(res.body).toHaveProperty("error");
-    expect(res.body.error).toEqual(ErrorMessages.CityIsRequired);
+    expectError(res, ErrorMessages.CityIsRequired);
   });
 
   it(`[ERR] Wrong cityName should return 400 with error : ${ErrorMessages.CityNotValid}`, async () => {
@@ -62,8 +60,6 @@ describe("[CityEventDetails]", () => {
       eventId: 1,
     });
 
-    expect(res.statusCode).toEqual(400);
-    expect(res.body).toHaveProperty("error");
-    expect(res.body.error).toEqual(ErrorMessages.CityNotValid);
+    expectError(res, ErrorMessages.CityNotValid);
   });
 });
