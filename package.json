@@ -4,13 +4,15 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-    "start": "nodemon --watch 'src/**' --ext 'ts,json' --ignore 'src/**/*.spec.ts' --exec 'ts-node src/server.ts'",
+    "start": "NODE_ENV=development nodemon --watch 'src/**' --ext 'ts,json' --ignore 'src/**/*.spec.ts' --exec 'ts-node src/server.ts'",
     "postinstall": "tsc",
     "watch-node": "nodemon dist/server.js",
     "watch-ts": "tsc -w",
+    "ngrok": " ngrok http 3000",
     "seed": "ts-node src/seeders/seed.ts",
     "migrate": "sequelize db:migrate",
-    "cron": "ts-node src/cron/cron.ts"
+    "cron": "ts-node src/cron/cron.ts",
+    "test": "jest --verbose --detectOpenHandles --colors"
   },
   "author": "",
   "license": "ISC",
@@ -22,6 +24,7 @@
     "@google-cloud/vertexai": "^0.2.1",
     "@types/express": "^4.17.17",
     "@types/morgan": "^1.9.9",
+    "@types/supertest": "^6.0.2",
     "axios": "^1.6.2",
     "body-parser": "^1.20.2",
     "chalk": "^4.1.2",
@@ -46,12 +49,18 @@
     "sqlite3": "^5.1.7"
   },
   "devDependencies": {
+    "@babel/preset-typescript": "^7.24.1",
+    "@jest/globals": "^29.7.0",
     "@types/cors": "^2.8.17",
+    "@types/jest": "^29.5.12",
     "@types/node": "^20.12.5",
     "@types/pg": "^8.11.4",
     "@types/validator": "^13.11.9",
+    "jest": "^29.5.0",
     "nodemon": "^3.0.1",
     "sequelize-cli": "^6.6.2",
+    "supertest": "^6.3.4",
+    "ts-jest": "^29.1.2",
     "ts-node": "^10.9.1",
     "typescript": "^5.2.2"
   }

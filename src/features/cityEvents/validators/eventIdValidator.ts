@@ -1,30 +1,18 @@
 import { checkCityEventIdExists } from "../../../utils/utils";
 import { ErrorMessages } from "../types/validator/Message";
-import { IValidator } from "../types/validator/Validator";
 
 export const validateEventId = async (
   eventId: string | undefined
-): Promise<IValidator> => {
+): Promise<void> => {
   if (typeof eventId === "undefined" || eventId === null || eventId === "") {
-    return {
-      valid: false,
-      error: ErrorMessages.EventIdIsRequired,
-    };
+    throw Error(ErrorMessages.EventIdIsRequired);
   }
 
   if (isNaN(+eventId) || eventId === "" || Number(eventId) < 0) {
-    return {
-      valid: false,
-      error: ErrorMessages.InvalidEventIdFormat,
-    };
+    throw Error(ErrorMessages.InvalidEventIdFormat);
   }
 
   if (!(await checkCityEventIdExists(+eventId))) {
-    return {
-      valid: false,
-      error: ErrorMessages.InvalidEventId,
-    };
+    throw Error(ErrorMessages.InvalidEventId);
   }
-
-  return { valid: true };
 };

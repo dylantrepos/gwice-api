@@ -9,4 +9,5 @@ export enum ErrorMessages {
   CityNotValid = "City is not valid",
   InvalidCategoryIds = "Invalid category ids",
   CategoryIdsDoesntExists = "Category ids doesn't exists",
+  InvalidNextPageFormat = "Invalid nextPage format",
 }

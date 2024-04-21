@@ -1,21 +1,12 @@
 import { checkCityNameExists } from "../../../utils/utils";
 import { ErrorMessages } from "../types/validator/Message";
-import { IValidator } from "../types/validator/Validator";
 
-export const validateCity = (cityName: string): IValidator => {
+export const validateCity = (cityName: string): void => {
   if (!cityName || typeof cityName !== "string") {
-    return {
-      valid: false,
-      error: ErrorMessages.CityIsRequired,
-    };
+    throw Error(ErrorMessages.CityIsRequired);
   }
 
   if (!checkCityNameExists(cityName)) {
-    return {
-      valid: false,
-      error: ErrorMessages.CityNotValid,
-    };
+    throw Error(ErrorMessages.CityNotValid);
   }
-
-  return { valid: true };
 };

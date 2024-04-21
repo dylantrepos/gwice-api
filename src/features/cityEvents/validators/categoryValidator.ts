@@ -1,28 +1,25 @@
 import { CATEGORIES } from "../../../seeder/data/Constant";
 import { ErrorMessages } from "../types/validator/Message";
-import { IValidator } from "../types/validator/Validator";
 
 const validCategoryIds = CATEGORIES.map((category) => category.open_agenda_id);
 
-export const validateCategory = (category: string): IValidator => {
+export const validateCategory = (category: string): void => {
   const categoryIdArr = category
     .split(",")
     .filter((item) => item.trim() !== "")
     .map((item) => +item);
 
-  const allAreNumbers = categoryIdArr.every((item) => !isNaN(Number(item)));
+  const allIdsAreNumbers = categoryIdArr.every((item) => !isNaN(Number(item)));
 
-  if (!allAreNumbers) {
-    return { valid: false, error: ErrorMessages.InvalidCategoryIds };
+  if (!allIdsAreNumbers) {
+    throw Error(ErrorMessages.InvalidCategoryIds);
   }
 
-  const allAreValid = categoryIdArr.every((item) =>
+  const allIdsExists = categoryIdArr.every((item) =>
     validCategoryIds.includes(item)
   );
 
-  if (!allAreValid) {
-    return { valid: false, error: ErrorMessages.CategoryIdsDoesntExists };
+  if (!allIdsExists) {
+    throw Error(ErrorMessages.CategoryIdsDoesntExists);
   }
-
-  return { valid: true };
 };

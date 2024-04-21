@@ -1,4 +1,9 @@
 {
+  "exclude": [
+    "node_modules",
+    "dist",
+    "src/@types",
+  ],
   "compilerOptions": {
     "pretty": true,
     "target": "es2020", /* Set the JavaScript language version for emitted JavaScript and include compatible library declarations. */
@@ -33,6 +38,7 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "types": [
+      "jest",
       "node"
     ],
     "typeRoots": [

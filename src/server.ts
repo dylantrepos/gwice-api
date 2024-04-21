@@ -12,13 +12,19 @@ const HOST = process.env.HOST || "localhost";
 
 app.use(cors());
 app.use(bodyParser.json());
-app.use(morganMiddleware);
+if (process.env.NODE_ENV !== "test") {
+  app.use(morganMiddleware);
+}
 
 app.use(Router);
 
 const server = http.createServer(app);
 
 server.listen(+PORT, HOST, () => {
-  console.clear();
-  console.log(`🚀 Live on ${HOST}:${PORT}`);
+  if (process.env.NODE_ENV !== "test") {
+    console.clear();
+    console.log(`🚀 Live on ${HOST}:${PORT}`);
+  }
 });
+
+export default server;

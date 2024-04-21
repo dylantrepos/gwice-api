@@ -1,5 +1,4 @@
 import { NextFunction, Request, Response } from "express";
-import { checkMiddlewareError } from "../../../utils/utils";
 import { validateCity } from "../validators/cityValidator";
 import { validateEventId } from "../validators/eventIdValidator";
 
@@ -11,8 +10,14 @@ export const cityEventDetailsMiddelware = async (
   const cityName = req.query.cityName as string;
   const eventId = req.query.eventId as string;
 
-  const cityResult = validateCity(cityName);
-  const eventResult = await validateEventId(eventId);
+  try {
+    validateCity(cityName);
+    await validateEventId(eventId);
 
-  checkMiddlewareError([cityResult, eventResult], res) || next();
+    next();
+  } catch (err) {
+    const { message } = err as Error;
+    res.status(400).send({ error: message });
+    return;
+  }
 };
