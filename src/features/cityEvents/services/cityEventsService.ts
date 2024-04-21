@@ -1,7 +1,7 @@
 // import { CityEvent } from "../../models/cityEventModel";
 
 import moment from "moment";
-import { Op } from "sequelize";
+import { Op, Sequelize } from "sequelize";
 import sequelize from "../../../database/getConnexion";
 import {
   CityEvent,
@@ -22,6 +22,7 @@ type GetCityEventsProps = {
   categoryId?: number[];
   from: Date;
   to: Date;
+  search: string | null;
 };
 
 export const getCityEvents = async ({
@@ -30,9 +31,26 @@ export const getCityEvents = async ({
   categoryId = [],
   from,
   to,
+  search = null,
 }: GetCityEventsProps): Promise<CityEventListReturn> => {
   const testSeq = sequelize;
   const offset = (page - 1) * pageSize;
+  const whereClause = search
+    ? {
+        [Op.or]: [
+          Sequelize.where(
+            Sequelize.fn("lower", Sequelize.col("CityEvent.title")),
+            {
+              [Op.regexp]: `\\y${search.toLowerCase()}\\y`,
+            }
+          ),
+          Sequelize.where(
+            Sequelize.fn("lower", Sequelize.col("CityEvent.long_description")),
+            { [Op.regexp]: `\\y${search.toLowerCase()}\\y` }
+          ),
+        ],
+      }
+    : {};
 
   const cityEvent = await CityEvent.findAndCountAll({
     // group: ["CityEvent.id"],
@@ -86,6 +104,7 @@ export const getCityEvents = async ({
     offset: offset,
     limit: pageSize,
     subQuery: false,
+    where: whereClause,
     // logging: console.log,
   });
 

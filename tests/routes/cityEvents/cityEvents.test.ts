@@ -56,6 +56,15 @@ describe("Request event lists", () => {
     expectBody(res);
   });
 
+  it("[OK] should retreive event with search", async () => {
+    const res = await request(server).get("/city-events").query({
+      cityName: "Lille",
+      search: "concert",
+    });
+
+    expectBody(res);
+  });
+
   it(`[ERR] Missing cityName should return 400 with error : ${ErrorMessages.CityIsRequired}`, async () => {
     const res = await request(server).get("/city-events");
 
@@ -149,5 +158,43 @@ describe("Request event lists", () => {
     });
 
     expectError(res, ErrorMessages.CategoryIdsDoesntExists);
+  });
+
+  it(`[ERR] Wrong search format should return 400 with error : ${ErrorMessages.InvalidSearchFormat}`, async () => {
+    const res = await request(server).get("/city-events").query({
+      cityName: "Lille",
+      search: 123,
+    });
+
+    expectError(res, ErrorMessages.InvalidSearchFormat);
+  });
+
+  it(`[ERR] Search is too short should return 400 with error : ${ErrorMessages.SearchIsTooShort}`, async () => {
+    const res = await request(server).get("/city-events").query({
+      cityName: "Lille",
+      search: "a",
+    });
+
+    expectError(res, ErrorMessages.SearchIsTooShort);
+  });
+
+  it(`[ERR] Search is too long should return 400 with error : ${ErrorMessages.SearchIsTooLong}`, async () => {
+    const res = await request(server)
+      .get("/city-events")
+      .query({
+        cityName: "Lille",
+        search: "a".repeat(101),
+      });
+
+    expectError(res, ErrorMessages.SearchIsTooLong);
+  });
+
+  it(`[ERR] Invalid characters in search should return 400 with error : ${ErrorMessages.InvalidCharactersInSearch}`, async () => {
+    const res = await request(server).get("/city-events").query({
+      cityName: "Lille",
+      search: "a@",
+    });
+
+    expectError(res, ErrorMessages.InvalidCharactersInSearch);
   });
 });

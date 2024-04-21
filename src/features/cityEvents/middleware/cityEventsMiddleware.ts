@@ -3,6 +3,7 @@ import { validateCategory } from "../validators/categoryValidator";
 import { validateCity } from "../validators/cityValidator";
 import { validateDateFormat } from "../validators/dateValidator";
 import { validateNextPage } from "../validators/NextPageValidator";
+import { validateSearch } from "../validators/searchValidator";
 
 export const cityEventsMiddleware = (
   req: Request,
@@ -13,13 +14,14 @@ export const cityEventsMiddleware = (
   const cityName = req.query.cityName as string;
   const from = req.query.from as string;
   const to = req.query.to as string;
-  const category = (req.query.categoryId as string)?.trim();
+  const category = (req.query.categoryId as string)?.trim() ?? null;
   const fromDate = from?.length > 0 ? new Date(from) : date;
   const toDate =
     to?.length > 0
       ? new Date(to)
       : new Date(date.setFullYear(date.getFullYear() + 1));
   const page = (req.query.nextPage as string) ?? null;
+  const search = (req.query.search as string)?.trim() ?? null;
 
   try {
     validateCity(cityName);
@@ -29,6 +31,9 @@ export const cityEventsMiddleware = (
     }
     if (page) {
       validateNextPage(page);
+    }
+    if (search) {
+      validateSearch(search);
     }
 
     next();

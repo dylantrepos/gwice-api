@@ -13,12 +13,13 @@ export const cityEventsController = async (req: Request, res: Response) => {
   const to = req.query.to
     ? moment.utc((req.query.to as string)?.split("+")[0]).toDate()
     : moment().add(10, "years").toDate();
-  const categoryIdReq: string = (req.query.categoryId as string)?.trim() ?? "";
+  const search = (req.query.search as string)?.trim() ?? null;
+  const categoryIdReq: string =
+    (req.query.categoryId as string)?.trim() ?? null;
 
-  const categoryId: number[] =
-    categoryIdReq.length > 0
-      ? categoryIdReq.split(",").map((item) => +item)
-      : CATEGORIES.map((category) => category.open_agenda_id);
+  const categoryId: number[] = categoryIdReq
+    ? categoryIdReq.split(",").map((item) => +item)
+    : CATEGORIES.map((category) => category.open_agenda_id);
 
   try {
     const events = await getCityEvents({
@@ -28,6 +29,7 @@ export const cityEventsController = async (req: Request, res: Response) => {
       categoryId,
       from,
       to,
+      search,
     });
 
     res.send(events);
