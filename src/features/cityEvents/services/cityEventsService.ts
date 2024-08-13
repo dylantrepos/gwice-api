@@ -14,6 +14,7 @@ import {
   CityEventTiming,
 } from "../../../models/cityEventModel/index";
 import { CityEventListReturn, CityEventReturn } from "../types/CityEvents";
+import { TypeTitle } from "../types/Constant";
 
 type GetCityEventsProps = {
   cityName: string;
@@ -23,6 +24,7 @@ type GetCityEventsProps = {
   from: Date;
   to: Date;
   search: string | null;
+  type: TypeTitle | null;
 };
 
 export const getCityEvents = async ({
@@ -32,6 +34,7 @@ export const getCityEvents = async ({
   from,
   to,
   search = null,
+  type = TypeTitle.Coming,
 }: GetCityEventsProps): Promise<CityEventListReturn> => {
   const testSeq = sequelize;
   const offset = (page - 1) * pageSize;
@@ -72,12 +75,16 @@ export const getCityEvents = async ({
           [Op.and]: [
             {
               start_time: {
-                [Op.gte]: moment(from).startOf("day"),
+                [Op.gte]:
+                  type === TypeTitle.Current
+                    ? moment(from).startOf("day")
+                    : moment(from).utc().toDate(),
               },
             },
             {
               end_time: {
-                [Op.lte]: to,
+                [Op.lte]:
+                  type === TypeTitle.Current ? moment(from).endOf("day") : to,
               },
             },
             {
@@ -115,7 +122,7 @@ export const getCityEvents = async ({
   const totalPages = Math.ceil(cityEvent.count / pageSize);
 
   const eventWithCategories = [];
-  const findAndAddCategories = async (event: CityEvent) => {
+  const findAndAddCategories = async (event: CityEvent, index: number) => {
     const categories = await CityEvent.findOne({
       where: { id: event.id },
       include: [
@@ -143,6 +150,8 @@ export const getCityEvents = async ({
 
     const eventFound: CityEventReturn = {
       id: event.id,
+      // @ts-ignore
+      keyPosition: index + offset,
       title: event.title,
       short_description: event.short_description,
       long_description: event.long_description,
@@ -190,8 +199,8 @@ export const getCityEvents = async ({
     return eventFound;
   };
 
-  for (const event of cityEvent.rows) {
-    const eventFound = await findAndAddCategories(event);
+  for (const [index, event] of cityEvent.rows.entries()) {
+    const eventFound = await findAndAddCategories(event, index);
     if (eventFound) eventWithCategories.push(eventFound);
   }
 

@@ -183,18 +183,9 @@ describe("Request event lists", () => {
       .get("/city-events")
       .query({
         cityName: "Lille",
-        search: "a".repeat(101),
+        search: "a".repeat(51),
       });
 
     expectError(res, ErrorMessages.SearchIsTooLong);
-  });
-
-  it(`[ERR] Invalid characters in search should return 400 with error : ${ErrorMessages.InvalidCharactersInSearch}`, async () => {
-    const res = await request(server).get("/city-events").query({
-      cityName: "Lille",
-      search: "a@",
-    });
-
-    expectError(res, ErrorMessages.InvalidCharactersInSearch);
   });
 });

@@ -5,6 +5,9 @@ import {
   StatusTitle,
 } from "../../features/cityEvents/types/Constant";
 
+/**
+ * Event
+ */
 export const STATUS = [
   {
     status_code: StatusId.Refused,

@@ -29,3 +29,10 @@ export enum StateTitle {
   Complete = "complete",
   Canceled = "canceled",
 }
+
+export enum TypeTitle {
+  Coming = "coming",
+  Current = "current",
+  Favorite = "favorite",
+  All = "all",
+}

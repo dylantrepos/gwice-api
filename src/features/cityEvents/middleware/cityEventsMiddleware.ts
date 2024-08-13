@@ -1,9 +1,11 @@
 import { NextFunction, Request, Response } from "express";
+import moment from "moment";
 import { validateCategory } from "../validators/categoryValidator";
 import { validateCity } from "../validators/cityValidator";
 import { validateDateFormat } from "../validators/dateValidator";
 import { validateNextPage } from "../validators/NextPageValidator";
 import { validateSearch } from "../validators/searchValidator";
+import { validateTypeFormat } from "../validators/typeValidator";
 
 export const cityEventsMiddleware = (
   req: Request,
@@ -15,11 +17,12 @@ export const cityEventsMiddleware = (
   const from = req.query.from as string;
   const to = req.query.to as string;
   const category = (req.query.categoryId as string)?.trim() ?? null;
-  const fromDate = from?.length > 0 ? new Date(from) : date;
+  const fromDate = from?.length > 0 ? moment.utc(from).toDate() : date;
+  const type = (req.query.type as string)?.trim() ?? null;
   const toDate =
     to?.length > 0
-      ? new Date(to)
-      : new Date(date.setFullYear(date.getFullYear() + 1));
+      ? moment.utc(to).toDate()
+      : moment.utc(from).add(1, "years").toDate();
   const page = (req.query.nextPage as string) ?? null;
   const search = (req.query.search as string)?.trim() ?? null;
 
@@ -34,6 +37,9 @@ export const cityEventsMiddleware = (
     }
     if (search) {
       validateSearch(search);
+    }
+    if (type) {
+      validateTypeFormat(type);
     }
 
     next();
